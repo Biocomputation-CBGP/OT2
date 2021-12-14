@@ -1,0 +1,122 @@
+{
+    "ordering": [
+        [
+            "A1",
+            "B1"
+        ],
+        [
+            "A2",
+            "B2"
+        ],
+        [
+            "A3",
+            "B3"
+        ]
+    ],
+    "brand": {
+        "brand": "3D_printed_rack",
+        "brandId": []
+    },
+    "metadata": {
+        "displayName": "3d_printed_rack_6x50mL",
+        "displayCategory": "tubeRack",
+        "displayVolumeUnits": "µL",
+        "tags": []
+    },
+    "dimensions": {
+        "xDimension": 127.5,
+        "yDimension": 85.5,
+        "zDimension": 120.5
+    },
+    "wells": {
+        "A1": {
+            "depth": 113.5,
+            "totalLiquidVolume": 50000,
+            "shape": "circular",
+            "diameter": 27.5,
+            "x": 35.5,
+            "y": 60.5,
+            "z": 7
+        },
+        "B1": {
+            "depth": 113.5,
+            "totalLiquidVolume": 50000,
+            "shape": "circular",
+            "diameter": 27.5,
+            "x": 35.5,
+            "y": 25,
+            "z": 7
+        },
+        "A2": {
+            "depth": 113.5,
+            "totalLiquidVolume": 50000,
+            "shape": "circular",
+            "diameter": 27.5,
+            "x": 71,
+            "y": 60.5,
+            "z": 7
+        },
+        "B2": {
+            "depth": 113.5,
+            "totalLiquidVolume": 50000,
+            "shape": "circular",
+            "diameter": 27.5,
+            "x": 71,
+            "y": 25,
+            "z": 7
+        },
+        "A3": {
+            "depth": 113.5,
+            "totalLiquidVolume": 50000,
+            "shape": "circular",
+            "diameter": 27.5,
+            "x": 106.5,
+            "y": 60.5,
+            "z": 7
+        },
+        "B3": {
+            "depth": 113.5,
+            "totalLiquidVolume": 50000,
+            "shape": "circular",
+            "diameter": 27.5,
+            "x": 106.5,
+            "y": 25,
+            "z": 7
+        }
+    },
+    "groups": [
+        {
+            "brand": {
+                "brand": "no_brand",
+                "brandId": []
+            },
+            "metadata": {
+                "wellBottomShape": "v",
+                "displayCategory": "tubeRack"
+            },
+            "wells": [
+                "A1",
+                "B1",
+                "A2",
+                "B2",
+                "A3",
+                "B3"
+            ]
+        }
+    ],
+    "parameters": {
+        "format": "irregular",
+        "quirks": [],
+        "isTiprack": false,
+        "isMagneticModuleCompatible": false,
+        "loadName": "3d_printed_rack_6x50ml"
+    },
+    "namespace": "custom_beta",
+    "version": 1,
+    "schemaVersion": 2,
+    "cornerOffsetFromSlot": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    }
+}
