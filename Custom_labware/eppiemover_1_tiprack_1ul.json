@@ -1,0 +1,59 @@
+{
+    "ordering": [
+        [
+            "A1"
+        ]
+    ],
+    "brand": {
+        "brand": "eppie_mover",
+        "brandId": [
+            "3d_printed"
+        ]
+    },
+    "metadata": {
+        "displayName": "Eppie_mover 1 Tip Rack 1 µL",
+        "displayCategory": "tipRack",
+        "displayVolumeUnits": "µL",
+        "tags": []
+    },
+    "dimensions": {
+        "xDimension": 127.76,
+        "yDimension": 85.47,
+        "zDimension": 106.8
+    },
+    "wells": {
+        "A1": {
+            "depth": 20,
+            "totalLiquidVolume": 1,
+            "shape": "circular",
+            "diameter": 7.4,
+            "x": 13,
+            "y": 69.67,
+            "z": 86.8
+        }
+    },
+    "groups": [
+        {
+            "metadata": {},
+            "wells": [
+                "A1"
+            ]
+        }
+    ],
+    "parameters": {
+        "format": "irregular",
+        "quirks": [],
+        "isTiprack": true,
+        "tipLength": 20,
+        "isMagneticModuleCompatible": false,
+        "loadName": "eppiemover_1_tiprack_1ul"
+    },
+    "namespace": "custom_beta",
+    "version": 1,
+    "schemaVersion": 2,
+    "cornerOffsetFromSlot": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    }
+}
