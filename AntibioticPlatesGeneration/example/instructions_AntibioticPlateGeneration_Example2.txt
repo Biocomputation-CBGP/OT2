@@ -1,0 +1,41 @@
+--------------------------------------------------------------
+--------------------------------------------------------------
+INFORMATION FILE
+	Data the users need to set the OT and perform the protocol
+	It is the output of the python file for the protocol when executed with the opentrons_simulate option
+
+--------------------------------------------------------------
+GENERAL INFORMATION
+This details are set by the user, this is only a remainder of some variables
+	- Number total of samples (all source plates): 99
+	- Number of different antibiotics: 3
+	- Final volume of output labware (uL): 75.0
+	- You have the replace tiprack option as False so there is no need of replacing none of the tipracks
+
+--------------------------------------------------------------
+DECK LABWARE POSITIONS
+This information will be provided by the OT App as well
+	VWR Blueprint Depth 105 96 Well Plate 390 킠 on 1
+	VWR Blueprint Depth 105 96 Well Plate 390 킠 on 2
+	VWR Blueprint Depth 105 96 Well Plate 390 킠 on 3
+	VWR Blueprint Depth 105 96 Well Plate 390 킠 on 4
+	VWR Blueprint Depth 105 96 Well Plate 390 킠 on 5
+	VWR Blueprint Depth 105 96 Well Plate 390 킠 on 6
+	VWR Blueprint Depth 105 96 Well Plate 390 킠 on 7
+	Opentrons 15 Tube Rack with Falcon 15 mL Conical on 8
+	Opentrons 96 Tip Rack 300 킠 on 9
+	Opentrons 96 Tip Rack 300 킠 on 10
+	Opentrons Fixed Trash on 12
+
+--------------------------------------------------------------
+15 ML FALCON TUBERACK REACTIVES POSITIONS
+Reactives in each position of the coldblock(s) and their respective volume (minimum)
+Tuberack Opentrons 15 Tube Rack with Falcon 15 mL Conical on 8
+
+--> Tuberack in Slot 8
+              1  2  3  4  5
+A  Amp - 2460uL  -  -  -  -
+B   Km - 3460uL  -  -  -  -
+C   Gm - 1510uL  -  -  -  -
+
+--------------------------------------------------------------

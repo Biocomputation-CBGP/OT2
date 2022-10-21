@@ -1,0 +1,15 @@
+﻿Variable,Value
+Name Source Plate,vwrblueprintdepth105_96_wellplate_390ul
+Number of Source Plates,3
+Samples Per Plate,"(30,1),(49,2),(20,3)"
+Name Final Plate,vwrblueprintdepth105_96_wellplate_390ul
+Volume of Sample to Transfer (uL),25
+Name Antibiotics,"Amp,Km,Gm"
+Antibiotics per plate,"(3),(1,2),(2)"
+Volume of Antibiotics to Transfer (uL),50
+Name 15mL Tuberack,opentrons_15_tuberack_falcon_15ml_conical
+Name Right Pipette (Multichannel),p300_multi_gen2
+Name Left Pipette (Singlechannel),p300_single_gen2
+Initial Tip Right Pipette,A1
+Initial Tip Left Pipette,A1
+Replace Tipracks,False
