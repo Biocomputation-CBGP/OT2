@@ -23,10 +23,10 @@ metadata = {
 }
 
 def run(protocol: protocol_api.ProtocolContext):
-	#Before everything because we will need it for the labware setting
+	# Before everything because we will need it for the labware setting
 	labware_context = opentrons.protocol_api.labware
 	
-	#We are going to create a logger to control errors that can occure in the script that are not taked in account and some of ours that will quit the program
+	# We are going to create a logger to control errors that can occure in the script that are not taked in account and some of ours that will quit the program
 	logging.basicConfig(format="""-------------------------------------------------------------------------------
 --> SUM ERROR:
 %(message)s
