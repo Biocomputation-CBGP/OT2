@@ -1,0 +1,18 @@
+﻿Variable,Value
+Grow OD,0.07
+Vol Transfer Colony (uL),25
+Vol Transfer Water (uL),75
+Vol Transfer Glycerol (uL),25
+Antibiotic Transposition Genome File Name,ODvalues_ant_library1
+Antibiotic Ampiciline Plasmid File Name,ODvalues_amp_library1
+Final Map Name,map_lib1_exampleColonieScreening
+Name Pipette Left Mount,p300_single_gen2
+Name Pipette Right Mount,p20_single_gen2
+Starting tip Left Pipette,F5
+Starting tip Right Pipette,A5
+Name Source Plate,vwrblueprintdepth105_96_wellplate_390ul
+Name Final Plate,vwrblueprintdepth105_96_wellplate_390ul
+Name Rack Falcon 15mL,opentrons_15_tuberack_falcon_15ml_conical
+Number of Glycerol Plates,2
+Number of PCR Plates,1
+Replace Tiprack,False

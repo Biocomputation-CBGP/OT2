@@ -54,20 +54,21 @@ def run(protocol: protocol_api.ProtocolContext):
 			self.volume_transfer_colony = float(variables_csv._get_value("Vol Transfer Colony (uL)", "Value"))
 			self.volume_transfer_glycerol = float(variables_csv._get_value("Vol Transfer Glycerol (uL)", "Value"))
 			self.volume_transfer_water = float(variables_csv._get_value("Vol Transfer Water (uL)", "Value"))
-			self.file_transform = variables_csv._get_value("Antibiotic Transposition Genome File Name", "Value") + ".csv" # In this file the selection values are higher than the grow_OD
-			self.file_integration = variables_csv._get_value("Antibiotic Ampiciline Plasmid File Name", "Value") + ".csv" # In this file the selection values are lower than the grow_OD
+			self.file_transform = "/data/user_storage/"+variables_csv._get_value("Antibiotic Transposition Genome File Name", "Value") + ".csv" # In this file the selection values are higher than the grow_OD
+			self.file_integration = "/data/user_storage/"+variables_csv._get_value("Antibiotic Ampiciline Plasmid File Name", "Value") + ".csv" # In this file the selection values are lower than the grow_OD
 			self.left_pipette_name = variables_csv._get_value("Name Pipette Left Mount", "Value")
 			self.right_pipette_name = variables_csv._get_value("Name Pipette Right Mount", "Value")
 			self.left_pipette = None
 			self.right_pipette = None
-			self.starting_tip_pipette_right = variables_csv._get_value("Starting tip Right Pipette", "Value")
-			self.starting_tip_pipette_left = variables_csv._get_value("Starting tip Left Pipette", "Value")
+			self.starting_tip_right_pip = variables_csv._get_value("Starting tip Right Pipette", "Value")
+			self.starting_tip_left_pip = variables_csv._get_value("Starting tip Left Pipette", "Value")
 			self.name_final_plate = variables_csv._get_value("Name Final Plate", "Value")
 			self.name_source_plate = variables_csv._get_value("Name Source Plate", "Value")
 			self.number_glycerol_plates = int(variables_csv._get_value("Number of Glycerol Plates", "Value"))
 			self.number_pcr_plates = int(variables_csv._get_value("Number of PCR Plates", "Value"))
 			self.name_rack_falcons = variables_csv._get_value("Name Rack Falcon 15mL", "Value")
-			self.final_map_name = "/data/user_storage/"+variables_csv._get_value("Final Map Name", "Value")
+			self.final_map_name = "/data/user_storage/"+variables_csv._get_value("Final Map Name", "Value")+".csv"
+			self.final_map_name = variables_csv._get_value("Final Map Name", "Value")+".csv"
 			self.reactives_info = {"glycerol":{"position_tubes":[],"reactions_per_tube":[],"destination_plates":[]},"water":{"position_tubes":[],"reactions_per_tube":[],"destination_plates":[]}}
 			self.replace_tiprack = variables_csv._get_value("Replace Tiprack", "Value")
 	
@@ -99,8 +100,8 @@ def run(protocol: protocol_api.ProtocolContext):
 		
 		# We are going to check if the OD files exist in the /data/user_storage directory
 		try:
-			open("/data/user_storage/"+variables.file_transform,"r")
-			open("/data/user_storage/"+variables.file_integration,"r")
+			open(variables.file_transform,"r")
+			open(variables.file_integration,"r")
 		except:
 			errors.append("One of the input csv files is not in the /data/user_storage/ directory")
 		
@@ -393,7 +394,6 @@ def run(protocol: protocol_api.ProtocolContext):
 		# Some general information that the user has setted
 		print("--------------------------------------------------------------\nGENERAL INFORMATION\nThis details are set by the user, this is only a remainder of some variables")
 		print("\t- Number total of selected colonies (all source plates): "+str(len(samples_picked)))
-		print(samples_picked)
 		print("\t- Number of total final plates: "+str(variables.number_glycerol_plates+variables.number_pcr_plates))
 		print("\t- Final volume of output glycerol labware (uL): "+str(variables.volume_transfer_colony+variables.volume_transfer_glycerol))
 		print("\t- Final volume of output PCR labware (uL): "+str(variables.volume_transfer_colony+variables.volume_transfer_water))
@@ -456,9 +456,10 @@ def run(protocol: protocol_api.ProtocolContext):
 		name_index = list(data_transform.index.values)
 		
 		list_colonies_pip = []
+
 		for i in name_columns:
 			for j in name_index:
-				if (data_transform.loc[j][i] > variables.grow_OD) and (data_integration.loc[j][i] < variables.grow_OD):
+				if (float(data_transform.loc[j][i]) > variables.grow_OD) and (float(data_integration.loc[j][i]) < variables.grow_OD):
 					# One possible update is having different values of selection for the different files
 					list_colonies_pip.append(j+i)
 				else:

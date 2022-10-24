@@ -1,0 +1,37 @@
+--------------------------------------------------------------
+--------------------------------------------------------------
+INFORMATION FILE
+	Data the users need to set the OT and perform the protocol
+	It is the output of the python file for the protocol when executed with the opentrons_simulate option
+
+--------------------------------------------------------------
+GENERAL INFORMATION
+This details are set by the user, this is only a remainder of some variables
+	- Number total of selected colonies (all source plates): 89
+	- Number of total final plates: 3
+	- Final volume of output glycerol labware (uL): 50.0
+	- Final volume of output PCR labware (uL): 100.0
+	- Map of samples location with their respective identities is going to be stored at map_lib1_exampleColonieScreening.csv
+--------------------------------------------------------------
+DECK LABWARE POSITIONS
+This information will be provided by the OT App as well
+	VWR Blueprint Depth 105 96 Well Plate 390 µL on 1
+	VWR Blueprint Depth 105 96 Well Plate 390 µL on 2
+	VWR Blueprint Depth 105 96 Well Plate 390 µL on 3
+	VWR Blueprint Depth 105 96 Well Plate 390 µL on 4
+	Opentrons 15 Tube Rack with Falcon 15 mL Conical on 5
+	Opentrons 96 Tip Rack 300 µL on 6
+	Opentrons Fixed Trash on 12
+
+--------------------------------------------------------------
+15 ML FALCON TUBERACK REACTIVES POSITIONS
+Reactives in each position of the coldblock(s) and their respective volume (minimum)
+Tuberack Opentrons 15 Tube Rack with Falcon 15 mL Conical on 5
+
+--> Tuberack in Slot 5
+                   1  2  3  4  5
+A  glycerol - 4460uL  -  -  -  -
+B     water - 6685uL  -  -  -  -
+C                  -  -  -  -  -
+
+--------------------------------------------------------------
