@@ -58,7 +58,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 self.name_map = None
             elif modular_parameters["Optional Map"]["Value"].lower() == "true":
                 self.map = True
-                self.name_map = modular_parameters["Name of map"]["Value"]
+                self.name_map = "/data/user_storage/"+modular_parameters["Name of map"]["Value"]
             self.number_source_plates = int(modular_parameters["Number of source plates"]["Value"])
             self.number_samples_source_plates = modular_parameters["Number of samples in every source plate"]["Value"]
             self.index_start_source_plate = modular_parameters["Index of start cell in source plate"]["Value"]
@@ -658,6 +658,11 @@ def run(protocol: protocol_api.ProtocolContext):
         elif variables.replace_tiprack == False:
             print("\t- You have the replace tiprack option as False so there is no need of replacing none of the tipracks\n")
         
+        if variables.map == True:
+            print("\t- The map(s) is going to be  in "+variables.name_map+"_positionInDeck.csv")
+        else:
+            pass
+        
         #Deck information of the labware
         print("--------------------------------------------------------------\nDECK LABWARE POSITIONS\nThis information will be provided by the OT App as well")
         for labware_position in protocol.loaded_labwares.values():
@@ -911,7 +916,8 @@ def run(protocol: protocol_api.ProtocolContext):
     try:
         # Loading of the csv parameters and using the first column (the name of the variables) as index
         current_step = "Reading csv and transforming them to parameters/variables"
-        variables_df = pd.read_csv("Variables-PCRs-OT.csv", index_col = 0)
+        variables_df = pd.read_csv("/data/user_storage/Variables-PCRs-OT.csv", index_col = 0)
+
         # We are going to convert these parameters into arguments of the class variables and we ar egoing to process some of them so they can be usable (they are going to be dictionaries)
         variables = setted_parameters(variables_df.to_dict(orient="index"))
         # We need the number of wells to set the default value of number_sampleS_source_plates
@@ -1115,9 +1121,11 @@ def run(protocol: protocol_api.ProtocolContext):
         #Now we create the map in case the user wants it
         current_step = "Importing the map of cells and primers for each final plate"
         if variables.map == True:
+            print("entra en lo del mapa")
             for map_source in labwares_source_indexes:
                 labwares_source_indexes[map_source] = labwares_source_indexes[map_source].fillna(value="-")
                 labwares_source_indexes[map_source].to_csv(str(variables.name_map)+"_"+str(map_source)+".csv")
+                print("El archivo se llamara: "+str(variables.name_map)+"_"+str(map_source)+".csv")
         
         #----------------------------------------------------------------------------------------------------------
         

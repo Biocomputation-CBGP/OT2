@@ -1,0 +1,52 @@
+entra en lo del mapa
+El archivo se llamara: /data/user_storage/map_test_github_1.csv
+El archivo se llamara: /data/user_storage/map_test_github_2.csv
+--------------------------------------------------------------
+--------------------------------------------------------------
+INFORMATION FILE
+    Data the users need to set the OT and perform the protocol
+    It is the output of the python file for the protocol when executed with the opentrons_simulate option
+
+--------------------------------------------------------------
+GENERAL INFORMATION
+This details are set by the user, this is only a remainder of some variables
+	- Number of samples (colonies+controls): 116
+	- Number of primer sets: 1
+	- Number of total reactions: 116
+	- Final volume of output labware (uL): 110.0
+	- You have the replace tiprack option as False so there is no need of replacing none of the tipracks
+
+	- The map(s) is going to be  in /data/user_storage/map_test_github_positionInDeck.csv
+--------------------------------------------------------------
+DECK LABWARE POSITIONS
+This information will be provided by the OT App as well
+	Corning 96 Well Plate 360 µL Flat on 1
+	Corning 96 Well Plate 360 µL Flat on 2
+	Armadillo 96 Well Plate 200 µL PCR Full Skirt on 3
+	Armadillo 96 Well Plate 200 µL PCR Full Skirt on 4
+	Cool_block_new 12 Tube Rack with No 1.5 mL on 5
+	Cool_block_new 12 Tube Rack with No 1.5 mL on 6
+	Opentrons 96 Tip Rack 1000 µL on 7
+	Opentrons 96 Tip Rack 20 µL on 8
+	Opentrons 96 Tip Rack 20 µL on 9
+	Opentrons Fixed Trash on 12
+
+--------------------------------------------------------------
+COLDBLOCK REACTIVES POSITIONS
+Reactives in each position of the coldblock(s) and their respective volume (minimum)
+
+--> Coldblock in Slot 5
+                1               2                    3                 4
+A  Water - 1384uL  Water - 1384uL       Water - 1303uL  Primer 1 - 256uL
+B  Water - 1384uL  Water - 1303uL  Polymerase - 1276uL  Primer 2 - 256uL
+C  Water - 1384uL  Water - 1303uL  Polymerase - 1276uL  Primer 3 - 256uL
+
+--------------------------------------------------------------
+
+--> Coldblock in Slot 6
+                 1                2                3  4
+A  Set Reactives 1  Set Reactives 1  Set Reactives 1  -
+B  Set Reactives 1  Set Reactives 1  Set Reactives 1  -
+C  Set Reactives 1  Set Reactives 1  Set Reactives 1  -
+
+--------------------------------------------------------------

@@ -1,0 +1,26 @@
+Variable,Value
+Number of primer sets,1
+Number of primers per set,3
+Volume of each primer transfer (uL),2
+Volume of polymerase transfer (uL),20
+Final volume of reactives (without colony),100
+Source Plate (Name),corning_96_wellplate_360ul_flat
+Number of source plates,2
+Number of samples in every source plate,"(20,2)"
+Final Plate (Name),armadillo_96_wellplate_200ul_pcr_full_skirt
+Volume of colony Transfer (uL),10
+Optional Map,True
+Name of map,map_test_github
+Index of start cell in source plate,-
+Index of start cell in final plate,5
+Number of colonies to perform PCR,116
+Position colonies not to do PCR,-
+Number of controls,0
+Position of controls,-
+Pipette Right Mount,p1000_single_gen2
+Pipette Left Mount,p20_single_gen2
+Starting tip Pipette Right,A10
+Starting tip Pipette Left,A2
+Extra Pipetting Adjust Factor,0.1
+Replace Tiprack,False
+API name of ColdBlock,coolblocknew_12_tuberack_1500ul
