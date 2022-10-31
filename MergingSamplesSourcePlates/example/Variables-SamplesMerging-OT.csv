@@ -1,0 +1,18 @@
+﻿Variable,Value
+Number of Source Plates,2
+Samples Per Plate,"(30,20)"
+Name Right Pipette,p20_single_gen2
+Name Left Pipette,p1000_single_gen2
+Initial Tip Right Pipette,B5
+Initial Tip Left Pipette,A1
+Replace Tipracks,False
+Name maps,prueba_maps
+Volume Colony transfer (uL),10
+Volume Water transfer (uL),10
+Name 15mL Falcon Rack,opentrons_15_tuberack_falcon_15ml_conical
+Name Source Plates,vwrblueprintdepth105_96_wellplate_390ul
+Name Final Plates,vwrblueprintdepth105_96_wellplate_390ul
+Name Source Plates Maps,"(library1,library2)"
+Type of Sample Selection,first
+Number of samples in every source plate,"(77,1),(48,2)"
+Index of start cell in source plate,"(3,2)"

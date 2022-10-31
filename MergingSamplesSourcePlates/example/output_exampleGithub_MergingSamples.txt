@@ -1,0 +1,37 @@
+C:\Users\Ana_CBGP\.opentrons\robot_settings.json not found. Loading defaults
+C:\Users\Ana_CBGP\.opentrons\deck_calibration.json not found. Loading defaults
+--------------------------------------------------------------
+--------------------------------------------------------------
+INFORMATION FILE
+	Data the users need to set the OT and perform the protocol
+	It is the output of the python file for the protocol when executed with the opentrons_simulate option
+
+--------------------------------------------------------------
+GENERAL INFORMATION
+This details are set by the user, this is only a remainder of some variables
+	- Number total of samples (all source plates): 50
+	- Final volume of output labware (uL): 20.0
+	- You have the replace tiprack option as False so there is no need of replacing none of the tipracks
+
+--------------------------------------------------------------
+DECK LABWARE POSITIONS
+This information will be provided by the OT App as well
+	VWR Blueprint Depth 105 96 Well Plate 390 킠 on 1
+	VWR Blueprint Depth 105 96 Well Plate 390 킠 on 2
+	VWR Blueprint Depth 105 96 Well Plate 390 킠 on 3
+	Opentrons 15 Tube Rack with Falcon 15 mL Conical on 4
+	Opentrons 96 Tip Rack 20 킠 on 5
+	Opentrons Fixed Trash on 12
+
+--------------------------------------------------------------
+15 ML FALCON TUBERACK REACTIVES POSITIONS
+Reactives in each position of the coldblock(s) and their respective volume (minimum)
+Tuberack Opentrons 15 Tube Rack with Falcon 15 mL Conical on 4
+
+--> Tuberack in Slot 4
+               1  2  3  4  5
+A  Water - 510uL  -  -  -  -
+B              -  -  -  -  -
+C              -  -  -  -  -
+
+--------------------------------------------------------------
