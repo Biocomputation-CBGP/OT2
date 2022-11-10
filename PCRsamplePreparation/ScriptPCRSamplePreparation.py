@@ -1,5 +1,3 @@
-#### ESTE ES EL SCRIPT EN EL CUAL ESTAMOS ARREGLANDO UNO DE LOS ERRORES QUE TENIAMOS EN EL CUADERNO
-
 """
 Python script destined to OT-2
 This script performes the sample preparation of different PCR mixes (with different primers) for the same group of samples
