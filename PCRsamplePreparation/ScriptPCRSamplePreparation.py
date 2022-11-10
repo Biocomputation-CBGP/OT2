@@ -1,8 +1,10 @@
+#### ESTE ES EL SCRIPT EN EL CUAL ESTAMOS ARREGLANDO UNO DE LOS ERRORES QUE TENIAMOS EN EL CUADERNO
+
 """
 Python script destined to OT-2
 This script performes the sample preparation of different PCR mixes (with different primers) for the same group of samples
 This scirpt needs 1 csv attached to perform the running (variables) and will give an output file (txt) with some instructions and an optional map
-For more info go to https://github.com/Biocomputation-CBGP/OT2/tree/main/PCRsamplePreparation and/or ### pagina del protocols.io del protocolo
+For more info go to https://github.com/Biocomputation-CBGP/OT2/tree/main/PCRsamplePreparation and/or www.protocols.io/view/ot-2-pcr-sample-preparation-protocol-n92ldpyznl5b/v1
 """
 
 ## Packages needed for the running of the protocol
@@ -518,7 +520,7 @@ def run(protocol: protocol_api.ProtocolContext):
         
         return    
         
-    def distribute_vol_tracking(volume_distribute, positions_tube_source, volumes_tubes_source, positions_final, current_pipette_used, variables):
+    def distribute_vol_tracking(volume_distribute, positions_tube_source, reactions_tubes_source, positions_final, current_pipette_used, variables):
         """
         This function is destined to transfer small amounts (in comparasion to transfer_vol_tracking) from a source to different wells
         
@@ -526,57 +528,18 @@ def run(protocol: protocol_api.ProtocolContext):
         
         This function works because we have assigned previously the reactions to the tube, if we separate the reactives another way we
         should use other function
+        
+        This function of distribution is different from the other protocols because in this case the height is not an issue and the vol tracking is done in the volume calculating section
         """
         
-        index_current_tube = 0 # initialize the index of the tube that we are using to 0
+        # We are not going to pick a tip because the selection of the tip already happened in the script
         
-        # We need to define the max pipette and the min pipette for later
-        if variables.right_pipette.max_volume > variables.left_pipette.max_volume:
-            pipeta_max = variables.right_pipette
-            pipeta_min = variables.left_pipette
-        else:
-            pipeta_max = variables.left_pipette
-            pipeta_min = variables.right_pipette
-        
-        pipette_used = current_pipette_used # Initialize the pipette
-
         # Lets distribute the reactive
-        while len(positions_final) > 0: # This will exit when there are no more wells to distribute
-            if volumes_tubes_source[index_current_tube] >= len(positions_final)*volume_distribute: # There is enough volume in the tube to distribute to all positions left
-                pipette_should_use = give_me_optimal_pipette_to_use(volume_distribute, variables.right_pipette, variables.left_pipette)
-                if pipette_should_use == pipette_used:
-                    pass
-                else:
-                    pipette_used.drop_tip()
-                    pipette_used = pipette_should_use
-                    check_tip_and_pick(pipette_used, variables)
-                
-                positions_to_distribute = positions_final
-                pipette_used.distribute(volume_distribute, positions_tube_source[index_current_tube], positions_final, new_tip = "never", disposal_volume = 0)
-                # If you change the disposal volume you need to take it in account when you are calculating the number of tubes
-                positions_final = [x for x in positions_final if x not in positions_to_distribute] # Erase from positions_final the wells we have distributed to
-                volumes_tubes_source[index_current_tube] -= len(positions_to_distribute)*volume_distribute
-    
-            else:
-                # The tube has not enough reactives to distribute to the wells, so we are going to distribute to the maximum positions and go to the next one
-                max_positions_current_tube = int(volumes_tubes_source[index_current_tube]/volume_distribute)
-                positions_to_distribute = positions_final[:max_positions_current_tube]
-                
-                # Assign the pipette that we should use
-                pipette_should_use = give_me_optimal_pipette_to_use(volume_distribute, variables.right_pipette, variables.left_pipette)
-                if pipette_should_use == pipette_used:
-                    pass
-                else:
-                    pipette_used.drop_tip()
-                    pipette_used = pipette_should_use
-                    check_tip_and_pick(pipette_used, variables)
-                
-                # Distribute to the maximimum amount of wells that we can    
-                pipette_used.distribute(volume_distribute, positions_tube_source[index_current_tube], positions_to_distribute, new_tip = "never", disposal_volume = 0)
-                # If you change the disposal volume you need to take it in account when you are calculating the number of tubes
-                positions_final = [x for x in positions_final if x not in positions_to_distribute]
-                volumes_tubes_source[index_current_tube] -= len(positions_to_distribute)*volume_distribute
-                index_current_tube += 1
+        for index_tube, reactions_tube in enumerate(reactions_tubes_source):
+            current_pipette_used.distribute(volume_distribute, positions_tube_source[index_tube], positions_final[:reactions_tube], disposal_volume = 0, new_tip = "never")
+            del positions_final[:reactions_tube]
+        
+        # The drop of the tip will be done outside of this function as well
         
         return    
         
@@ -663,12 +626,12 @@ def run(protocol: protocol_api.ProtocolContext):
         else:
             pass
         
-        #Deck information of the labware
+        # Deck information of the labware
         print("--------------------------------------------------------------\nDECK LABWARE POSITIONS\nThis information will be provided by the OT App as well")
         for labware_position in protocol.loaded_labwares.values():
             print("\t"+str(labware_position))
         
-        #Coldblock positions for the reactives
+        # Coldblock positions for the reactives
         coldblock_positions = output_settinglabware[6]
         water_positions = output_settinglabware[0]
         poly_positions = output_settinglabware[1]
@@ -1002,7 +965,7 @@ def run(protocol: protocol_api.ProtocolContext):
         
         #----------------------------------------------------------------------------------------------------------
         
-        #Phire
+        # Phire
         current_step = "Transfering polymerase"
         
         # Calculate the polymerase amount that we have to transfer to each tube of mix
@@ -1017,7 +980,7 @@ def run(protocol: protocol_api.ProtocolContext):
             variables.left_pipette.flow_rate.aspirate = 10
             variables.left_pipette.flow_rate.dispense = 10
         
-        # Trasnfer the polymerase to the tubes with volume tracking of the polymerase tubes
+        # TranSfer the polymerase to the tubes with volume tracking of the polymerase tubes
         last_pipette_used = transfer_volume_tracking(volume_phyre_per_tube*variables.sets, positions_reactives_labware.polymerase, sum(positions_reactives_labware.mixes.values(),[]), volumes_reactives.volume_tube_polymerase, variables)
         last_pipette_used.drop_tip()
         
@@ -1057,7 +1020,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 check_tip_and_pick(aSuitablePippet, variables)
                 
             current_step = "Distributing primer set to final plates"
-            distribute_vol_tracking(variables.volume_reactives, set_primer_to_distribute, initial_volume_tubes_mix, positions_pcr_reactives[variables.number_reactions*index_set_primer:variables.number_reactions*(index_set_primer+1)], aSuitablePippet, variables)
+            distribute_vol_tracking(variables.volume_reactives, set_primer_to_distribute, volumes_reactives.reactions_per_tube_mix, positions_pcr_reactives[variables.number_reactions*index_set_primer:variables.number_reactions*(index_set_primer+1)], aSuitablePippet, variables)
             aSuitablePippet.drop_tip()
         
         # We restore the height of dispense
@@ -1084,7 +1047,7 @@ def run(protocol: protocol_api.ProtocolContext):
         # We are going to delete the positions that are not going to the thermocycler and put the control positions at the end so they can be at the end of each primer subset
         current_step = "Deleting from the picking wells the positions that should not be picked"
         
-        #delete the not wanted positions and the controls of the positions to take
+        # delete the not wanted positions and the controls of the positions to take
         positions_source_cells = delete_certain_wells_from_list(position_source_cells, variables.positions_not_perform_pcr, source_cell_plates_locations)
         positions_source_cells = delete_certain_wells_from_list(position_source_cells, variables.positions_control, source_cell_plates_locations)
         #----------------------------------------------------------------------------------------------------------
@@ -1105,7 +1068,6 @@ def run(protocol: protocol_api.ProtocolContext):
         
         # First we create the maps for filling, we are creating it even if we dont want it
         labwares_source_indexes = pds_labware_sources(positions_reactives_labware.source_plates)
-        #print(labwares_source_indexes)
         
         for colony_index in range(variables.number_reactions):
             source_cell = next(current_position_cell)
@@ -1118,7 +1080,7 @@ def run(protocol: protocol_api.ProtocolContext):
         
         #----------------------------------------------------------------------------------------------------------
         
-        #Now we create the map in case the user wants it
+        # Now we create the map in case the user wants it
         current_step = "Importing the map of cells and primers for each final plate"
         if variables.map == True:
             print("entra en lo del mapa")
