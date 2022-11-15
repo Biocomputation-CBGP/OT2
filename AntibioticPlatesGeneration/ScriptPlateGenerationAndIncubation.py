@@ -83,7 +83,7 @@ def run(protocol: protocol_api.ProtocolContext):
 			Some of the variables need processing to be usable in the script, usually is from a "(,),(,)" format to a dictionary
 			
 			The function need the name of the parameter in the class, default value of the variable and how many items the dictiony needs to have
-			In case that the strcutre of the parameters are different, this function should be changed
+			In case that the structure of the parameters are different, this function should be changed
 			"""
 			
 			value_parameter = getattr(self, name_parameter).replace(" ","")[1:-1].split('),(')
@@ -125,15 +125,6 @@ def run(protocol: protocol_api.ProtocolContext):
 		"""
 		# Initialize the errors list in which we are going to store the messages that we need to display for the user
 		errors = []
-		
-		# Check that the source and final plate are realy in the custom_labware namespace
-		# If this raises an error some other lines of this function are not going to work, that is why we need to quit the program before and not append it to the errors
-		try:
-			labware_context.get_labware_definition(variables.name_source_plate)
-			labware_context.get_labware_definition(variables.name_final_plate)
-			labware_context.get_labware_definition(variables.name_rack_falcons)
-		except:
-			raise Exception("One or more of the introduced labwares are not in the custom labware directory of the opentrons. Check for any typo of the api labware name.")
 		
 		# We are going to check that the number of cells in each plate is not larger than the capacity of the source plates
 		for number_cells_per_plate in variables.samples_per_plate.values():
@@ -324,7 +315,8 @@ def run(protocol: protocol_api.ProtocolContext):
 		for antibiotic in variables.antibiotics.keys():
 			number_reactions_per_antibiotic = 0
 			for plate in variables.data_source_plates.values():
-				if antibiotic in plate["antibiotics"]:
+				if antibiotic+1 in plate["antibiotics"]:
+					# We need this antibiotic +1 because antibiotic indexes are assigned in the script so index starts with 0 and the antibiotics per plate are given by the user so the start index is 1
 					number_reactions_per_antibiotic += plate["samples"]
 			tubes_antibiotic, reactions_per_tube_antibiotic = number_tubes_needed(variables.volume_antibiotic, number_reactions_per_antibiotic, max_volume_well-10)
 			tubes_antibiotic_total += tubes_antibiotic
@@ -463,9 +455,26 @@ def run(protocol: protocol_api.ProtocolContext):
 		# Setting variables and calculating others
 		variables_csv = pd.read_csv("/data/user_storage/Variables-AntibioticPlatesCreation-OT.csv", index_col = 0)
 		# We are going to convert these parameters into arguments of the class variables and we are going to process some of them so they can be usable (they are going to be dictionaries in their majority)
-		variables = setted_parameters(variables_csv.to_dict(orient="index"))
+		variables = setted_parameters(variables_csv)
+		
+		# Due to the fact that even in the parameters checking we use the labwares definition, we are going to check that they exist outside that function
+		try:
+			labware_context.get_labware_definition(variables.name_source_plate)
+			labware_context.get_labware_definition(variables.name_final_plate)
+			labware_context.get_labware_definition(variables.name_rack_falcons)
+		except:
+			raise Exception("One or more of the introduced labwares are not in the custom labware directory of the opentrons. Check for any typo of the API labware name.")
+		
+		
 		wells_source_plate = len(labware_context.get_labware_definition(variables.name_source_plate)["wells"])
 		setted_parameters.proccess_variables(variables, "samples_per_plate", wells_source_plate, variables.number_source_plates)
+		
+		# Fill the dictionary for data_source_plates (samples and antibiotic), final plates will be filled after
+		for number_plate in range(variables.number_source_plates):
+				list_antibiotics = variables_csv._get_value("Antibiotics per plate","Value").strip().split(",(")[number_plate].replace("(","").replace(")","").split(",")
+				list_antibiotics = [eval(i) for i in list_antibiotics]
+				variables.data_source_plates[number_plate] = {"samples":variables.samples_per_plate[number_plate+1], "antibiotics":list_antibiotics,"final_plates":[]} # Final plates will be filled after
+				# We need that +1 variables.samples_per_plate[number_plate+1] becaus ethis is a variable setted by the user and their index starts with 1, not 0
 		
 		# Set some variables of the final plates that we need
 		# Number of final plates
