@@ -62,7 +62,7 @@ def run(protocol: protocol_api.ProtocolContext):
 				self.replace_tiprack = True
 			elif varibles_csv._get_value("Replace Tipracks","Value").lower() == "false":
 				self.replace_tiprack = False
-			self.name_map = variables_csv._get_value("Name maps","Value")
+			self.name_map = "/data/user_storage/"+variables_csv._get_value("Name maps","Value")
 			self.volume_transfer_sample = float(variables_csv._get_value("Volume Colony transfer (uL)","Value"))
 			self.volume_transfer_water = float(variables_csv._get_value("Volume Water transfer (uL)","Value"))
 			self.water = {"position_tubes":[], "reactions_per_tube":[]}
@@ -489,7 +489,7 @@ def run(protocol: protocol_api.ProtocolContext):
 	
 		
 		dataframes_with_index[int(pos_final_deck)][int(pos_final_labware[1:])][pos_final_labware[0]] = str(identifier_sample+" on "+pos_source_deck)
-		#We are going to still put the position on the deck because 2 samples can have the same identifier in different plates
+		# We are going to still put the position on the deck because 2 samples can have the same identifier in different plates
 		
 		return
 	
