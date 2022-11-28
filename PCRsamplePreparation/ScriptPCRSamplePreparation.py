@@ -187,15 +187,6 @@ def run(protocol: protocol_api.ProtocolContext):
         errors = []
         warnings = []
         
-        # Check that the source and final plate are realy in the cutosm_labware namespace
-        # If this raises an error some other lines of this function are not going to work, that is why we need to quit the program before and not append it to the errors
-        try:
-            labware_context.get_labware_definition(variables.name_source_plate)
-            labware_context.get_labware_definition(variables.name_final_plate)
-            labware_context.get_labware_definition(variables.name_coldblock)
-        except:
-            raise Exception("One or more of the introduced labwares are not in the custom labware directory of the opentrons. Check for any typo of the API labware name.")
-        
         # Volume of reactives is larger than the established one
         if (variables.volume_primer*variables.number_primers + variables.volume_polymerase) > variables.volume_reactives:
             errors.append("Volume of each reactive added is larger than the total volume of reactives")
@@ -265,7 +256,15 @@ def run(protocol: protocol_api.ProtocolContext):
             pass
         else:
             errors.append("One or more wells from the 'not perform pcr' or 'controls' wells do not exist in the source labware")
-            
+        
+        # Check if there is some typo in the the starting tip
+        if variables.name_right_pip not in ["None", "-"]:
+            if not any(variables.starting_tip_right_pip in columns for columns in labware_context.get_labware_definition(define_tiprack(variables.name_right_pip))["ordering"]):
+                errors.append("Starting tip of right pipette is not valid, check for typos")
+        if variables.name_left_pip not in ["None", "-"]:
+            if not any(variables.starting_tip_left_pip in columns for columns in labware_context.get_labware_definition(define_tiprack(variables.name_left_pip))["ordering"]):
+                errors.append("Starting tip of left pipette is not valid, check for typos")
+
         return errors, warnings
 
     def define_tiprack (pipette):
@@ -369,12 +368,12 @@ def run(protocol: protocol_api.ProtocolContext):
     
     def setting_number_plates (number_plates, labware_name):
         """
-		In this function we will set how many labwares we need of every category (source labwares, final, coldblocks, falcon tube racks, etc)
-		
+        In this function we will set how many labwares we need of every category (source labwares, final, coldblocks, falcon tube racks, etc)
+
 		This function will only set the labwares in the different slots of the deck, with not calculate how many we need,
 		this way we do not have to change this function and only change the setting_labware function from protocol to protocol
 		"""
-        
+
         try:
             position_plates = [position for position, labware in protocol.deck.items() if labware == None] # We obtain the positions in which there are not labwares
             all_plates = []
@@ -617,7 +616,7 @@ def run(protocol: protocol_api.ProtocolContext):
         elif variables.replace_tiprack == True and variables.need_change_tiprack == False:
             print("\t- There will be no need to change tipracks\n")
         elif variables.replace_tiprack == False:
-            print("\t- You have the replace tiprack option as False so there is no need of replacing none of the tipracks\n")
+            print("\t- You have the replace tiprack option as False so there is no need of replacing none of the tipracks")
         
         if variables.map == True:
             print("\t- The map(s) is going to be  in "+variables.name_map+"_positionInDeck.csv")
@@ -625,7 +624,7 @@ def run(protocol: protocol_api.ProtocolContext):
             pass
         
         # Deck information of the labware
-        print("--------------------------------------------------------------\nDECK LABWARE POSITIONS\nThis information will be provided by the OT App as well")
+        print("\n--------------------------------------------------------------\nDECK LABWARE POSITIONS\nThis information will be provided by the OT App as well")
         for labware_position in protocol.loaded_labwares.values():
             print("\t"+str(labware_position))
         
@@ -815,9 +814,9 @@ def run(protocol: protocol_api.ProtocolContext):
         pipette_used = give_me_optimal_pipette_to_use(vol_distribute[0], variables.right_pipette, variables.left_pipette)
         
         # Just in case, better to waste 1 tip than to contaminate reactives
-        if variables.right_pipette.has_tip == True:
+        if variables.right_pipette != None and variables.right_pipette.has_tip == True:
             variables.right_pipette.drop_tip() 
-        if variables.left_pipette.has_tip == True:
+        if variables.left_pipette != None and variables.left_pipette.has_tip == True:
             variables.left_pipette.drop_tip()
         
         # Now we loop over the different sets
@@ -880,7 +879,17 @@ def run(protocol: protocol_api.ProtocolContext):
         variables_df = pd.read_csv("/data/user_storage/Variables-PCRs-OT.csv", index_col = 0)
 
         # We are going to convert these parameters into arguments of the class variables and we ar egoing to process some of them so they can be usable (they are going to be dictionaries)
-        variables = setted_parameters(variables_df.to_dict(orient="index"))
+        variables = setted_parameters(variables_df.to_dict(orient = "index"))
+        
+        # Due to the fact that even in the parameters checking we use the labwares definition, we are going to check that they exist outside that function
+        try:
+            labware_context.get_labware_definition(variables.name_source_plate)
+            labware_context.get_labware_definition(variables.name_final_plate)
+            labware_context.get_labware_definition(variables.name_coldblock)
+        except:
+            raise Exception("One or more of the introduced labwares are not in the custom labware directory of the opentrons. Check for any typo of the API labware name.")
+        
+        
         # We need the number of wells to set the default value of number_sampleS_source_plates
         number_wells_source_plate = len(labware_context.get_labware_definition(variables.name_source_plate)["wells"])
         setted_parameters.proccess_variables(variables, "number_samples_source_plates", number_wells_source_plate, variables.number_source_plates)
@@ -916,12 +925,12 @@ def run(protocol: protocol_api.ProtocolContext):
         
         # Here we set pipettes and tips
         current_step = "Stating pipettes and associated tip racks"
-        if variables.name_right_pip == "None":
+        if variables.name_right_pip == "None" or variables.name_right_pip == "-":
             variables.right_pipette = None
         else:
             variables.right_pipette = protocol.load_instrument(variables.name_right_pip, "right", tip_racks=[])
             
-        if variables.name_left_pip == "None":
+        if variables.name_left_pip == "None" or variables.name_left_pip == "-":
             variables.left_pipette = None
         else:
             variables.left_pipette = protocol.load_instrument(variables.name_left_pip, "left", tip_racks=[])
@@ -1016,6 +1025,7 @@ def run(protocol: protocol_api.ProtocolContext):
             else:
                 last_pipette_used_mixing.drop_tip()
                 check_tip_and_pick(aSuitablePippet, variables)
+                pass
                 
             current_step = "Distributing primer set to final plates"
             distribute_vol_tracking(variables.volume_reactives, set_primer_to_distribute, volumes_reactives.reactions_per_tube_mix, positions_pcr_reactives[variables.number_reactions*index_set_primer:variables.number_reactions*(index_set_primer+1)], aSuitablePippet, variables)
@@ -1058,7 +1068,7 @@ def run(protocol: protocol_api.ProtocolContext):
         # Define the generator of positions
         current_position_cell = set_labware(position_source_cells)
         current_position_pcr = set_labware(positions_pcr_reactives)
-        
+        #hay que quitar esta variable porque no se usa, si lo hacemos por indices
         #----------------------------------------------------------------------------------------------------------
         
         # And now lets distribute cells to the primer pairs
@@ -1067,11 +1077,12 @@ def run(protocol: protocol_api.ProtocolContext):
         # First we create the maps for filling, we are creating it even if we dont want it
         labwares_source_indexes = pds_labware_sources(positions_reactives_labware.source_plates)
         
+        
         for colony_index in range(variables.number_reactions):
             source_cell = next(current_position_cell)
             for type_set_primer in range(variables.sets):
                 check_tip_and_pick(aSuitablePippet, variables)
-                aSuitablePippet.transfer(variables.volume_colonie, source_cell.bottom(z=0.8), positions_pcr_reactives[(colony_index+(type_set_primer*variables.number_reactions))].bottom(z=2), mix_after=(3, 4), new_tip="never")
+                aSuitablePippet.transfer(variables.volume_colonie, source_cell, positions_pcr_reactives[(colony_index+(type_set_primer*variables.number_reactions))], mix_after=(3, 4), new_tip="never")
                 # We put that transfer into the maps
                 map_tracking(source_cell, positions_pcr_reactives[(colony_index+(type_set_primer*variables.number_reactions))], labwares_source_indexes)
                 aSuitablePippet.drop_tip()
@@ -1081,11 +1092,9 @@ def run(protocol: protocol_api.ProtocolContext):
         # Now we create the map in case the user wants it
         current_step = "Importing the map of cells and primers for each final plate"
         if variables.map == True:
-            print("entra en lo del mapa")
             for map_source in labwares_source_indexes:
                 labwares_source_indexes[map_source] = labwares_source_indexes[map_source].fillna(value="-")
                 labwares_source_indexes[map_source].to_csv(str(variables.name_map)+"_"+str(map_source)+".csv")
-                print("El archivo se llamara: "+str(variables.name_map)+"_"+str(map_source)+".csv")
         
         #----------------------------------------------------------------------------------------------------------
         
