@@ -460,8 +460,7 @@ def run(protocol: protocol_api.ProtocolContext):
 	try:
 		current_step = "Reading csv and transforming them to parameters/variables"
 		# Setting variables and calculating others
-		#variables_csv = pd.read_csv("/data/user_storage/Variables-AntibioticPlatesCreation-OT.csv", index_col = 0)
-		variables_csv = pd.read_csv("Variables-AntibioticPlatesCreation-OT.csv", index_col = 0)
+		variables_csv = pd.read_csv("/data/user_storage/Variables-AntibioticPlatesCreation-OT.csv", index_col = 0)
 		# We are going to convert these parameters into arguments of the class variables and we are going to process some of them so they can be usable (they are going to be dictionaries in their majority)
 		variables = setted_parameters(variables_csv)
 		wells_source_plate = len(labware_context.get_labware_definition(variables.name_source_plate)["wells"])
