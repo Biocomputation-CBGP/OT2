@@ -76,7 +76,7 @@ def run(protocol: protocol_api.ProtocolContext):
 			self.type_selection = variables_csv._get_value("Type of Sample Selection", "Value").lower()
 			self.number_samples_source_plates = variables_csv._get_value("Number of samples in every source plate", "Value")
 			self.index_start_source_plate = variables_csv._get_value("Index of start cell in source plate", "Value")
-			self.need_change_tiprack = False
+			self.need_change_tiprack = False # initialize with a value, it will be changed in case that there is a need to replace it
 			
 			return
 		
@@ -165,10 +165,10 @@ def run(protocol: protocol_api.ProtocolContext):
 			errors.append("The number of source plates and the number of maps do not match")
 		
 		# Check if there is any typo in the starting tip of both pipettes
-		if variables.name_right_pipette not in ["None", "-"]:
+		if variables.name_right_pipette not in ["None","none","-"]:
 			if not any(variables.starting_tip_right_pip in columns for columns in labware_context.get_labware_definition(define_tiprack(variables.name_right_pipette))["ordering"]):
 				errors.append("Starting tip of right pipette is not valid, check for typos")
-		if variables.name_left_pipette not in ["None", "-"]:
+		if variables.name_left_pipette not in ["None","none","-"]:
 			if not any(variables.starting_tip_left_pip in columns for columns in labware_context.get_labware_definition(define_tiprack(variables.name_left_pipette))["ordering"]):
 				errors.append("Starting tip of left pipette is not valid, check for typos")
 		
@@ -185,7 +185,7 @@ def run(protocol: protocol_api.ProtocolContext):
 		
 		Also this function only has the not filtered tips associated
 		"""
-
+		
 		if pipette == "p20_single_gen2" or pipette == "p20_multi_gen2":
 			return "opentrons_96_tiprack_20ul"
 		elif pipette == "p300_single_gen2" or pipette == "p300_multi_gen2":
