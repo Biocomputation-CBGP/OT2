@@ -3,7 +3,8 @@ Python script destined to OT-2
 This script performs a selection of colonies that have a certain value in 2 conditions, this can be OD in differnt antibiotics, OD in differnt time periods, GFP, etc
 In one of the file has to have a lower value than the threshold and in other a higher value
 This scirpt needs 3 csv attached to perform the running (variables and 2 values files) and will give an output file (txt) with some instructions
-For more info go to https://github.com/Biocomputation-CBGP/OT2/tree/main/ColonySelection and/or ### pagina del protocols.io del protocolo
+For more info go to https://github.com/Biocomputation-CBGP/OT2/tree/main/ColonySelection and/or
+https://www.protocols.io/view/ot-2-counter-selection-5qpvor5xdv4o/v1
 """
 
 # This script has an inmediate upgrade, making the reactives general, i.e., not only glycerol and water but general reactives
