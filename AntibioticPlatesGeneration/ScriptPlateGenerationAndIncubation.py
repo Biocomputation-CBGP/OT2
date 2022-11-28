@@ -2,7 +2,8 @@
 Python script destined to OT-2
 This script performs a creation of reactive plates mixed with the respective colonies of the source plate
 This scirpt needs a csv attached to perform the running and will give an output file (txt) with some instructions
-For more info go to https://github.com/Biocomputation-CBGP/OT2/tree/main/AntibioticPlatesGeneration and/or ### pagina del protocols.io del protocolo
+For more info go to https://github.com/Biocomputation-CBGP/OT2/tree/main/AntibioticPlatesGeneration and/or
+https://www.protocols.io/view/ot-2-media-dispensing-and-culture-inoculation-prot-q26g7yb3kgwz/v1
 """
 
 ## Packages needed for the running of the protocol
@@ -83,7 +84,7 @@ def run(protocol: protocol_api.ProtocolContext):
 			Some of the variables need processing to be usable in the script, usually is from a "(,),(,)" format to a dictionary
 			
 			The function need the name of the parameter in the class, default value of the variable and how many items the dictiony needs to have
-			In case that the structure of the parameters are different, this function should be changed
+			In case that the strcutre of the parameters are different, this function should be changed
 			"""
 			
 			value_parameter = getattr(self, name_parameter).replace(" ","")[1:-1].split('),(')
@@ -125,6 +126,15 @@ def run(protocol: protocol_api.ProtocolContext):
 		"""
 		# Initialize the errors list in which we are going to store the messages that we need to display for the user
 		errors = []
+		
+		# Check that the source and final plate are realy in the custom_labware namespace
+		# If this raises an error some other lines of this function are not going to work, that is why we need to quit the program before and not append it to the errors
+		try:
+			labware_context.get_labware_definition(variables.name_source_plate)
+			labware_context.get_labware_definition(variables.name_final_plate)
+			labware_context.get_labware_definition(variables.name_rack_falcons)
+		except:
+			raise Exception("One or more of the introduced labwares are not in the custom labware directory of the opentrons. Check for any typo of the api labware name.")
 		
 		# We are going to check that the number of cells in each plate is not larger than the capacity of the source plates
 		for number_cells_per_plate in variables.samples_per_plate.values():
@@ -292,13 +302,11 @@ def run(protocol: protocol_api.ProtocolContext):
 		
 		This function should be changed depending of how many types of labware we need to set and how many different reactives do we need
 		"""
-		
 		# We start settign the source labware which number has been provided
 		labware_source = setting_number_plates(variables.number_source_plates, variables.name_source_plate)
 		
 		# Set the final plates which number has been previously calculated and it is in the setted_parameters class
 		labware_final = setting_number_plates(variables.plates_final, variables.name_final_plate)
-		
 		list_labware_final = copy.deepcopy(labware_final)
 		
 		#Now we are going to assign to which final plates the samples from the source plates should go
@@ -315,8 +323,7 @@ def run(protocol: protocol_api.ProtocolContext):
 		for antibiotic in variables.antibiotics.keys():
 			number_reactions_per_antibiotic = 0
 			for plate in variables.data_source_plates.values():
-				if antibiotic+1 in plate["antibiotics"]:
-					# We need this antibiotic +1 because antibiotic indexes are assigned in the script so index starts with 0 and the antibiotics per plate are given by the user so the start index is 1
+				if antibiotic in plate["antibiotics"]:
 					number_reactions_per_antibiotic += plate["samples"]
 			tubes_antibiotic, reactions_per_tube_antibiotic = number_tubes_needed(variables.volume_antibiotic, number_reactions_per_antibiotic, max_volume_well-10)
 			tubes_antibiotic_total += tubes_antibiotic
@@ -453,30 +460,21 @@ def run(protocol: protocol_api.ProtocolContext):
 	try:
 		current_step = "Reading csv and transforming them to parameters/variables"
 		# Setting variables and calculating others
-		variables_csv = pd.read_csv("/data/user_storage/Variables-AntibioticPlatesCreation-OT.csv", index_col = 0)
+		#variables_csv = pd.read_csv("/data/user_storage/Variables-AntibioticPlatesCreation-OT.csv", index_col = 0)
+		variables_csv = pd.read_csv("Variables-AntibioticPlatesCreation-OT.csv", index_col = 0)
 		# We are going to convert these parameters into arguments of the class variables and we are going to process some of them so they can be usable (they are going to be dictionaries in their majority)
 		variables = setted_parameters(variables_csv)
-		
-		# Due to the fact that even in the parameters checking we use the labwares definition, we are going to check that they exist outside that function
-		try:
-			labware_context.get_labware_definition(variables.name_source_plate)
-			labware_context.get_labware_definition(variables.name_final_plate)
-			labware_context.get_labware_definition(variables.name_rack_falcons)
-		except:
-			raise Exception("One or more of the introduced labwares are not in the custom labware directory of the opentrons. Check for any typo of the API labware name.")
-		
-		
 		wells_source_plate = len(labware_context.get_labware_definition(variables.name_source_plate)["wells"])
 		setted_parameters.proccess_variables(variables, "samples_per_plate", wells_source_plate, variables.number_source_plates)
 		
+		# Set some variables of the final plates that we need
+		variables.number_samples = sum(variables.samples_per_plate.values())
 		# Fill the dictionary for data_source_plates (samples and antibiotic), final plates will be filled after
 		for number_plate in range(variables.number_source_plates):
 				list_antibiotics = variables_csv._get_value("Antibiotics per plate","Value").strip().split(",(")[number_plate].replace("(","").replace(")","").split(",")
-				list_antibiotics = [eval(i) for i in list_antibiotics]
-				variables.data_source_plates[number_plate] = {"samples":variables.samples_per_plate[number_plate+1], "antibiotics":list_antibiotics,"final_plates":[]} # Final plates will be filled after
-				# We need that +1 variables.samples_per_plate[number_plate+1] becaus ethis is a variable setted by the user and their index starts with 1, not 0
+				list_antibiotics = [eval(i)-1 for i in list_antibiotics]
+				variables.data_source_plates[number_plate+1] = {"samples":variables.samples_per_plate[number_plate+1], "antibiotics":list_antibiotics,"final_plates":[]} # Final plate swill be filled after
 		
-		# Set some variables of the final plates that we need
 		# Number of final plates
 		for data_plate in variables.data_source_plates.values():
 			variables.plates_final += len(data_plate["antibiotics"])
@@ -527,6 +525,7 @@ def run(protocol: protocol_api.ProtocolContext):
 		current_step = "Distributing antibiotic(s) to plate(s)"
 
 		# Let's create the positions to distribute for every antibiotic and then distribute it
+
 		for index_antibiotic, data_antibiotic in variables.antibiotics.items():
 			positions_antibiotic = []
 			for index_plate, data_plate in variables.data_final_plates.items():
@@ -557,7 +556,7 @@ def run(protocol: protocol_api.ProtocolContext):
 			for final_plate_position in data_plate["final_plates"]:
 				for column in range(columns_plate):
 					check_tip_and_pick(variables.right_pipette, variables)
-					variables.right_pipette.transfer(variables.volume_colonies, labware_source[index_plate].columns(column), final_plate_position.columns(column), new_tip = "never")
+					variables.right_pipette.transfer(variables.volume_colonies, labware_source[index_plate-1].columns(column), final_plate_position.columns(column), new_tip = "never")
 					variables.right_pipette.drop_tip()
 		
 		current_step ="Homing robot"
