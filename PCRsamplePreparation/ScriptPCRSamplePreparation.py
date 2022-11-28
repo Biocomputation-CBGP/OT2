@@ -11,7 +11,6 @@ from opentrons import protocol_api
 import pandas as pd
 import numpy as np
 import logging
-import json
 import math
 import copy
 
