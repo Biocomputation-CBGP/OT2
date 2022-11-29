@@ -74,13 +74,13 @@ For the installation of the opentrons package you can visit the [opentrons blog 
 
 ## Input(s) - (file format/number)
 
-The script needs only 1 mandatory file, the Variables-AntibioticPlatesCreation-OT.csv
+The script needs only 1 mandatory file, the *Variables-AntibioticPlatesCreation-OT.csv*
 
-This file can be obtained by filling Template_Variables_PlateGeneration.xlsx and converting it or exporting it as a csv with that name, it is important that the file has that exact name, otherwise the script will not work.
+This file can be obtained by filling *Template_Variables_PlateGeneration.xlsx* and converting it or exporting it as a csv with that name, it is important that the file has that exact name, otherwise the script will not work.
 
 In case that you have a labware error, one of the reasons can be that the OT-App is not recognising the labware. In that case you need to create a directory with the api_name of the labware and a file with the labware description (a json file created by the custom labware creator) called 1.json
 
-This file should be located in the robot system, specifically in the folloring directory /data/labware/v2/custom_definitions/custom_labware
+This file should be located in the robot system, specifically in the folloring directory */data/labware/v2/custom_definitions/custom_labware*
 
 
 
