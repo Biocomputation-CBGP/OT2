@@ -69,7 +69,6 @@ def run(protocol: protocol_api.ProtocolContext):
 			self.number_pcr_plates = int(variables_csv._get_value("Number of PCR Plates", "Value"))
 			self.name_rack_falcons = variables_csv._get_value("Name Rack Falcon 15mL", "Value")
 			self.final_map_name = "/data/user_storage/"+variables_csv._get_value("Final Map Name", "Value")+".csv"
-			self.final_map_name = variables_csv._get_value("Final Map Name", "Value")+".csv"
 			self.reactives_info = {"glycerol":{"position_tubes":[],"reactions_per_tube":[],"destination_plates":[]},"water":{"position_tubes":[],"reactions_per_tube":[],"destination_plates":[]}}
 			self.replace_tiprack = variables_csv._get_value("Replace Tiprack", "Value")
 	
@@ -82,16 +81,7 @@ def run(protocol: protocol_api.ProtocolContext):
 		"""
 		# Initialize the errors list in which we are going to store the messages that we need to display for the user
 		errors = []
-		
-		# Check that the source and final plate are realy in the custom_labware namespace
-		# If this raises an error some other lines of this function are not going to work, that is why we need to quit the program before and not append it to the errors
-		try:
-			labware_context.get_labware_definition(variables.name_source_plate)
-			labware_context.get_labware_definition(variables.name_final_plate)
-			labware_context.get_labware_definition(variables.name_rack_falcons)
-		except:
-			raise Exception("One or more of the introduced labwares are not in the custom labware directory of the opentrons. Check for any typo of the api labware name.")   
-		
+
 		# We are going to check that the colonies + antibiotic is not more than the max volume of the wells in the final plates
 		max_volume_well = float(list(labware_context.get_labware_definition(variables.name_final_plate)["wells"].values())[0]['totalLiquidVolume'])
 		if (variables.volume_transfer_colony + variables.volume_transfer_water > max_volume_well) or (variables.volume_transfer_colony + variables.volume_transfer_glycerol > max_volume_well):
@@ -107,10 +97,18 @@ def run(protocol: protocol_api.ProtocolContext):
 			errors.append("One of the input csv files is not in the /data/user_storage/ directory")
 		
 		# Check if there is any typo in the starting tip of both pipettes
-		if not any(variables.starting_tip_pipette_right in columns for columns in variables.labware_context.get_labware_definition(define_tiprack(variables.right_pipette_name))["ordering"]):
-			errors.append("Starting tip of right pipette is not valid, check for typos")
-		if not any(variables.starting_tip_pipette_left in columns for columns in variables.labware_context.get_labware_definition(define_tiprack(variables.left_pipette_name))["ordering"]):
-			errors.append("Starting tip of left pipette is not valid, check for typos")
+		try:
+			if not any(variables.starting_tip_right_pip in columns for columns in labware_context.get_labware_definition(define_tiprack(variables.right_pipette_name))["ordering"]):
+				errors.append("Starting tip of right pipette is not valid, check for typos")
+			if not any(variables.starting_tip_left_pip in columns for columns in labware_context.get_labware_definition(define_tiprack(variables.left_pipette_name))["ordering"]):
+				errors.append("Starting tip of left pipette is not valid, check for typos")
+		except:
+			errors.append("At least one of the pipettes is not established, check for typos in the name")
+		
+		# Lets check that the replace tiprack value is a correct one
+		if variables.replace_tiprack.lower() not in ["false","true"]:
+			errors.append("Replace Tiprack value can only be True or False")
+		
 		
 		return errors
 	
@@ -441,10 +439,48 @@ def run(protocol: protocol_api.ProtocolContext):
 		variables_csv = pd.read_csv("/data/user_storage/Variables-ColonieScreening-OT.csv", index_col = 0)
 		variables = setted_parameters(variables_csv)
 		
+		current_step = "Validating csv variables values"
+		# Check that the source and final plate are realy in the custom_labware namespace
+		# If this raises an error some other lines of this function are not going to work, that is why we need to quit the program before and not append it to the errors
+		try:
+			labware_context.get_labware_definition(variables.name_source_plate)
+			labware_context.get_labware_definition(variables.name_final_plate)
+			labware_context.get_labware_definition(variables.name_rack_falcons)
+		except:
+			print("""------------------------------------------------\nERROR(S):
+One or more of the introduced labwares are not in the custom labware directory of the opentrons.
+Check for any typo of the api labware name.
+------------------------------------------------
+Before proceeding this error(s) should be fixed""")
+			quit()
+		
+		# We also need to check for some pipette, or at least to not be established as None or -
+		# We have to check this now so does not raise an error while validating the pipette starting tip
+		if variables.right_pipette_name in ["None","none","-"] and variables.left_pipette_name in ["None","none","-"]:
+			print("""------------------------------------------------\nERROR(S):
+No pipette established, at least need 1
+------------------------------------------------
+Before proceeding this error(s) should be fixed""")
+			quit()
+		
+		errors_variables = check_setted_parameters(variables)
+		if len(errors_variables) > 0:
+			print("------------------------------------------------\nERROR(S):")
+			for error in errors_variables:
+				print("\t- "+error)
+			print("------------------------------------------------\nBefore proceeding this error(s) should be fixed")
+			quit()
+		
 		current_step = "Defining pipettes"
 		# We can define them because in the parameters check we have seen if there is a pipette that it is not in the mount
-		variables.right_pipette = protocol.load_instrument(variables.right_pipette_name, mount = "right")
-		variables.left_pipette = protocol.load_instrument(variables.left_pipette_name, mount = "left")
+		if variables.right_pipette_name not in ["None","none","-"]:
+			variables.right_pipette = protocol.load_instrument(variables.right_pipette_name, mount = "right")
+		else:
+			variables.right_pipette = None
+		if variables.left_pipette_name not in ["None","none","-"]:
+			variables.left_pipette = protocol.load_instrument(variables.left_pipette_name, mount = "left")
+		else:
+			variables.left_pipette = None
 		
 		current_step = "Load OD data"
 		# Loading the csv from Amp and Ant antibiotics (for example)
