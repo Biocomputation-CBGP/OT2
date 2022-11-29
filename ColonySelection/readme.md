@@ -110,4 +110,5 @@ Besides that, you will obtain plates with the reactives and the selected samples
 ## Parameters of creation (i.e python version)
 
 Python 3.9.7
+
 Microsoft Windows 10 Home 64-bit
