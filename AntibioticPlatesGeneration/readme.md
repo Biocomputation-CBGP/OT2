@@ -66,7 +66,7 @@ Python 3.7 or higher (https://www.python.org/downloads/)
 
 **Python packages:** opentrons, pandas, logging, math and copy
 
-For the installation of the opentrons package you can visit the opentrons blog page
+For the installation of the opentrons package you can visit the [opentrons blog page](https://support.opentrons.com/s/article/Simulating-OT-2-protocols-on-your-computer)
 
 
 
