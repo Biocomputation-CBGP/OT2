@@ -1,4 +1,4 @@
-Description of the script
+# Plate creation with reactive and specific sample
 
 Python script destined to perform in a Opentrons robot (OT-2) a dispensation of one or more reactives, for example antibiotics, and the inoculation of microorganisms into these plates.
 
@@ -7,7 +7,7 @@ For that purpose it needs a csv file with several customizable attributes, an OT
 
 
 
-Script Structure
+## Script Structure
 
 Even if the script structure can vary from version to version the main structure of the script will be described here. The newest version of the script can be checked at the end of this page under the section URL GitHub repository)
 
@@ -54,7 +54,7 @@ Everything in the script is inside of the run function due to the requirement of
 
 
 
-Requirements (packages, software)
+## Requirements (packages, software)
 
 Python 3.7 or higher (https://www.python.org/downloads/)
 
@@ -66,7 +66,7 @@ For the installation of the opentrons package you can visit the opentrons blog p
 
 
 
-Input(s) - (file format/number)
+## Input(s) - (file format/number)
 
 The script needs only 1 mandatory file, the Variables-AntibioticPlatesCreation-OT.csv
 
@@ -78,23 +78,22 @@ This file should be located in the robot system, specifically in the folloring d
 
 
 
-How to run script
-Fill template
-Convert to csv
-Pass csv (to directory /data/user_storage) and script to OT-2 in which the protocol will be run
-Run script in OT and storing the output in a file
-Pass that file to your computer
-Load script into OT-App
-Load labware as stated in the App and the instruction file
-Run protocol
+## How to run script
+ 1. Fill template
+ 2. Convert to csv
+ 3. Pass csv (to directory /data/user_storage) and script to OT-2 in which the protocol will be run
+ 4. Run script in OT and storing the output in a file
+ 5. Pass that file to your computer
+ 6. Load script into OT-App
+ 7. Load labware as stated in the App and the instruction file
+ 8. Run protocol
 
-For additional information of how to proceed to run the protocol check the protocols.io page of the protocol
-
-
-
+For additional information of how to proceed to run the protocol check dx.doi.org/10.17504/protocols.io.q26g7yb3kgwz/v1.
+You can do a test try with the files in the example folder inside this GitHub directory.
 
 
-Expected output files (file format/number)
+
+## Expected output files (file format/number)
 
 You will only obtain the instruction file in case that you stored the output of the script in a file.
 
@@ -103,37 +102,8 @@ Besides that, you will obtain plates with a reactive an dinoculated with the sam
 
 
 
-Parameters of creation (i.e python version)
+## Parameters of creation (i.e python version)
 
 Python 3.9.7
 
 Microsoft Windows 10 Home 64-bit
-
-
-
-
-Working example
-
-
-Input files
-
-Variables-AntibioticPlatesCreation-OT.csv
-
-
-ScriptPlateGenerationAndIncubation.py
-
-
-vwrblueprintdepth105_96_wellplate_390ul.zip
-
-
-Output file
-
-instructions_example.txt
-
-
-
-
-
-URL GitHub repository
-
-Main Folder Antibiotic Plate Generation Github
