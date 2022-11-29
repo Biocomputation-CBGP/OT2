@@ -15,38 +15,40 @@ Even if the script structure can vary from version to version the main structure
 
 *Definition of labware context*
 
-We need to extract several times information from the labware, manly names of wells, number of columns, rows, etc.
+We need to extract several times information from the labware, mainly names of wells, number of columns, rows, etc.
 
 
 *Definition of classes*
 
-setted_parameters. Class that will set the parameters in the csv to variables and besides it has a method to process some of the variables to convert them from strings to dictionaries.
+`setted_parameters`Class that will set the parameters in the csv to variables and besides it has a method to process some of the variables to convert them from strings to dictionaries.
 
 
 *Definition of functions*
 
-check_setted_parameters. There is an internal validation after settign the parameters. This is to validate that there are o errors about the variables in the csv as labwares that are not in the system, number of cells in a plate is higher than the wells of that labware, etc.
+`check_setted_parameters` There is an internal validation after settign the parameters. This is to validate that there are o errors about the variables in the csv as labwares that are not in the system, number of cells in a plate is higher than the wells of that labware, etc.
 define_tiprack. Everytime that a pipette does not have enough tips and there is a need to place a deck slot with a tiprack, this function will be called and return the name of the tiprack that will be assocated with the pipette.
 
-check_tip_and_pick. Function called to check if there are tips, in case that there is not is going to check if we defined in the variables file if we want to replace the tiprack or not. In case that that variable is True, it will pause the protocol, the user needs to change that tiprack and wait until you resume the protocol. If th evariable is set as False, it is going to check if there is space in the deck and in affirmative case, will call define_tiprack, in negative case, it will raise an error. After all this, it will pick up a tip.
+`check_tip_and_pick` Function called to check if there are tips, in case that there is not is going to check if we defined in the variables file if we want to replace the tiprack or not. In case that that variable is True, it will pause the protocol, the user needs to change that tiprack and wait until you resume the protocol. If th evariable is set as False, it is going to check if there is space in the deck and in affirmative case, will call define_tiprack, in negative case, it will raise an error. After all this, it will pick up a tip.
 
-number_tubes_needed. Given a volume per reaction of a reactive, the number of reaction and the maximum volume of the tube in which the reactive is going to be stored will return the number of tubes needed and the number or reactions per tube. This function is used several times when setting the labware. To calculate the number of tubes needed it divides the reactions in different number of tubes until it finds the lower number of tubes in which the volume for that quantity of reactions fits the tube volume. This function does not garantee the lower total number of tubes for the reactives because it divides by reactions and not by total volume needed but this way we ensure that the volume can be picked with at least 1 of the mounted pipettes.
+`number_tubes_needed` Given a volume per reaction of a reactive, the number of reaction and the maximum volume of the tube in which the reactive is going to be stored will return the number of tubes needed and the number or reactions per tube. This function is used several times when setting the labware. To calculate the number of tubes needed it divides the reactions in different number of tubes until it finds the lower number of tubes in which the volume for that quantity of reactions fits the tube volume. This function does not garantee the lower total number of tubes for the reactives because it divides by reactions and not by total volume needed but this way we ensure that the volume can be picked with at least 1 of the mounted pipettes.
 
-setting_number_plates. Given a number of labware plates and the name of it, it sets the list of empty deck slots and if there is space, it will load the labwares and if there is not enough space, it will raise an error. This function is used one or more times in the setting labware phase of the script
+`setting_number_plates` Given a number of labware plates and the name of it, it sets the list of empty deck slots and if there is space, it will load the labwares and if there is not enough space, it will raise an error. This function is used one or more times in the setting labware phase of the script
 setting_labware. Given the setted_parameters class (called variables in the script) will return list of the source labware, final labware and the tuberacks where reactives are. For that, it sets these labwares with the setting_number_plate, it calculates the tubes needed for each reactive with number_tubes_needed and calculates how many tuberacks are needed. Besides of this, it updates the variables class with the number and positions of each of the previously named labwares.
-position_dispense_aspirate. The dispense and aspirate action from the 15mL falcon tubes needs to be at a certain  height so the pipette does not get wet. These heights are measured by hand and given a position of the tube and the volume of it the function will return the position with a certain z accordingly to the volume of the falcon. This function is used in the distribution of the reactives in the different final plates.
 
-distribute_z_tracking. Given the volume to distribute to each well, the position(s) of the reactive tube(s) and the positions to dispense it will transfer the liquid to that wells tracking the height of aspiration by comparing the height before and after the volume aspiration. The position is the result of the position_dispense_aspirate function.
+`position_dispense_aspirate`The dispense and aspirate action from the 15mL falcon tubes needs to be at a certain  height so the pipette does not get wet. These heights are measured by hand and given a position of the tube and the volume of it the function will return the position with a certain z accordingly to the volume of the falcon. This function is used in the distribution of the reactives in the different final plates.
 
-set_labware. Generator used to give sequentially the positions to dispense from a list of final wells. Each time that this function is called will return the next position of the list.
+`distribute_z_tracking`Given the volume to distribute to each well, the position(s) of the reactive tube(s) and the positions to dispense it will transfer the liquid to that wells tracking the height of aspiration by comparing the height before and after the volume aspiration. The position is the result of the position_dispense_aspirate function.
 
-give_me_optimal_pipette_to_use. Given the pipettes that are mounted in the robot arm and the volume of transferring it return the pipette that will perform the less movements to transfer that volume. In case that only one of the pipettes can transfer the volume, the function will return that one.
+`set_labware` Generator used to give sequentially the positions to dispense from a list of final wells. Each time that this function is called will return the next position of the list.
+
+`give_me_optimal_pipette_to_use` Given the pipettes that are mounted in the robot arm and the volume of transferring it return the pipette that will perform the less movements to transfer that volume. In case that only one of the pipettes can transfer the volume, the function will return that one.
 pds_labware_source. Given the name of the final labware it will return a dataframe with the same dimensions so it can be filled after with the names of the selected samples.
 
-map_tracking. Given the source and final wells, the final table and the map of the source plate, the function will process the names and insert them in the corresponding cell in the final map.
+`map_tracking` Given the source and final wells, the final table and the map of the source plate, the function will process the names and insert them in the corresponding cell in the final map.
 
-wells_transfer. From the source, finla plates and the setted_parameters class we will return a list of wells to transfer from and the list of wells where these samples will be transfered to. Depending on the setted_parameters class, this could be samples at the beginning of the plate, at the end of it or randomly selected.
-print_information_user. This function is used at the end of the script to print in the terminal information that is needed for the user as some general information, the needed labware and the reactives positions and volumes in the tuberack(s)
+`wells_transfer` From the source, finla plates and the setted_parameters class we will return a list of wells to transfer from and the list of wells where these samples will be transfered to. Depending on the setted_parameters class, this could be samples at the beginning of the plate, at the end of it or randomly selected.
+
+`print_information_user` This function is used at the end of the script to print in the terminal information that is needed for the user as some general information, the needed labware and the reactives positions and volumes in the tuberack(s)
 
 *Body of the script*
 
