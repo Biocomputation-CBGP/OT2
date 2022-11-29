@@ -109,6 +109,7 @@ This file should be located in the robot system, specifically in the folloring d
 
 For additional information of how to proceed to run the protocol check the [protocols.io page of the protocol](dx.doi.org/10.17504/protocols.io.6qpvr4o62gmk/v1)
 
+Besides, to try and test how it works the files in the example folder can be used.
 
 
 
