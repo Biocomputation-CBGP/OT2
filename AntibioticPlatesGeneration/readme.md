@@ -20,7 +20,7 @@ We need to extract several times information from the labware, manly names of we
 
 *Definition of classes*
 
-setted_parameters. Class that will set the parameters in the csv to variables and besides it has a method to process some of the variables to convert them from strings to dictionaries.
+`setted_parameters` Class that will set the parameters in the csv to variables and besides it has a method to process some of the variables to convert them from strings to dictionaries.
 
 *Definition of functions*
 
