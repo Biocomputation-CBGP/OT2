@@ -26,30 +26,36 @@ setted_parameters. Class that will set the parameters in the csv to variables an
 
  `check_setted_parameters` There is an internal validation after settign the parameters. This is to validate that there are o errors about the variables in the csv as labwares that are not in the system, number of cells in a plate is higher than the wells of that labware, etc.
 define_tiprack. Everytime that a pipette does not have enough tips and there is a need to place a deck slot with a tiprack, this function will be called and return the name of the tiprack that will be assocated with the pipette.
-check_tip_and_pick. Function called to check if there are tips, in case that there is not is going to check if we defined in the variables file if we want to replace the tiprack or not. In case that that variable is True, it will pause the protocol, the user needs to change that tiprack and wait until you resume the protocol. If th evariable is set as False, it is going to check if there is space in the deck and in affirmative case, will call define_tiprack, in negative case, it will raise an error. After all this, it will pick up a tip.
-number_tubes_needed. Given a volume per reaction of a reactive, the number of reaction and the maximum volume of the tube in which the reactive is going to be stored will return the number of tubes needed and the number or reactions per tube. This function is used several times when setting the labware. To calculate the number of tubes needed it divides the reactions in different number of tubes until it finds the lower number of tubes in which the volume for that quantity of reactions fits the tube volume. This function does not garantee the lower total number of tubes for the reactives because it divides by reactions and not by total volume needed but this way we ensure that the volume can be picked with at least 1 of the mounted pipettes.
+
+`check_tip_and_pick` Function called to check if there are tips, in case that there is not is going to check if we defined in the variables file if we want to replace the tiprack or not. In case that that variable is True, it will pause the protocol, the user needs to change that tiprack and wait until you resume the protocol. If th evariable is set as False, it is going to check if there is space in the deck and in affirmative case, will call define_tiprack, in negative case, it will raise an error. After all this, it will pick up a tip.
+
+`number_tubes_needed` Given a volume per reaction of a reactive, the number of reaction and the maximum volume of the tube in which the reactive is going to be stored will return the number of tubes needed and the number or reactions per tube. This function is used several times when setting the labware. To calculate the number of tubes needed it divides the reactions in different number of tubes until it finds the lower number of tubes in which the volume for that quantity of reactions fits the tube volume. This function does not garantee the lower total number of tubes for the reactives because it divides by reactions and not by total volume needed but this way we ensure that the volume can be picked with at least 1 of the mounted pipettes.
 setting_number_plates. Given a number of labware plates and the name of it, it sets the list of empty deck slots and if there is space, it will load the labwares and if there is not enough space, it will raise an error. This function is used one or more times in the setting labware phase of the script
-setting_labware. Given the setted_parameters class (called variables in the script) will return list of the source labware, final labware and the tuberacks where reactives are. For that, it sets these labwares with the setting_number_plate, it calculates the tubes needed for each reactive with number_tubes_needed and calculates how many tuberacks are needed. Besides of this, it updates the variables class with the number and positions of each of the previously named labwares.
-position_dispense_aspirate. The dispense and aspirate action from the 15mL falcon tubes needs to be at a certain  height so the pipette does not get wet. These heights are measured by hand and given a position of the tube and the volume of it the function will return the position with a certain z accordingly to the volume of the falcon. This function is used in the distribution of the reactives in the different final plates.
-distribute_z_tracking. Given the volume to distribute to each well, the position(s) of the reactive tube(s) and the positions to dispense it will transfer the liquid to that wells tracking the height of aspiration by comparing the height before and after the volume aspiration. The position is the result of the position_dispense_aspirate function.
-set_labware. Generator used to give sequentially the positions to dispense from a list of final wells. Each time that this function is called will return the next position of the list.
+
+`setting_labware` Given the setted_parameters class (called variables in the script) will return list of the source labware, final labware and the tuberacks where reactives are. For that, it sets these labwares with the setting_number_plate, it calculates the tubes needed for each reactive with number_tubes_needed and calculates how many tuberacks are needed. Besides of this, it updates the variables class with the number and positions of each of the previously named labwares.
+
+`position_dispense_aspirate` The dispense and aspirate action from the 15mL falcon tubes needs to be at a certain  height so the pipette does not get wet. These heights are measured by hand and given a position of the tube and the volume of it the function will return the position with a certain z accordingly to the volume of the falcon. This function is used in the distribution of the reactives in the different final plates.
+
+`distribute_z_tracking` Given the volume to distribute to each well, the position(s) of the reactive tube(s) and the positions to dispense it will transfer the liquid to that wells tracking the height of aspiration by comparing the height before and after the volume aspiration. The position is the result of the position_dispense_aspirate function.
+
+`set_labware` Generator used to give sequentially the positions to dispense from a list of final wells. Each time that this function is called will return the next position of the list.
 print_information_user. This function is used at the end of the script to print in the terminal information that is needed for the user as some general information, the needed labware and the reactives positions and volumes in the tuberack(s)
 
-Body of the script
+*Body of the script*
 
-Read variables from csv file
-Create the setted_parameters class, calling it variables
-Process them
-Fill it with other variables, all extracted from the original ones
-Validate variables
-Set pipettes
-Set labware
-Distribute reactives
-Distribute samples from source labware
+1. Read variables from csv file
+2. Create the setted_parameters class, calling it variables
+3. Process them
+4. Fill it with other variables, all extracted from the original ones
+5. Validate variables
+6. Set pipettes
+7. Set labware
+8. Distribute reactives
+9. Distribute samples from source labware
 
 All of this steps are embedded in a try except structure to catch errors in the process and give them in a more user-friendly output.
 
-Everything in the script is inside of the run function due to the requirement of opentrons, for more information visit the Opentrons page and its API manual version 2.
+Everything in the script is inside of the run function due to the requirement of opentrons, for more information visit the [Opentrons page](https://docs.opentrons.com/v2/writing.html) and its API manual version 2.
 
 
 
@@ -58,7 +64,7 @@ Everything in the script is inside of the run function due to the requirement of
 
 Python 3.7 or higher (https://www.python.org/downloads/)
 
-Python packages: opentrons, pandas, logging, math and copy
+**Python packages:** opentrons, pandas, logging, math and copy
 
 For the installation of the opentrons package you can visit the opentrons blog page
 
@@ -88,10 +94,9 @@ This file should be located in the robot system, specifically in the folloring d
  7. Load labware as stated in the App and the instruction file
  8. Run protocol
 
-For additional information of how to proceed to run the protocol check dx.doi.org/10.17504/protocols.io.q26g7yb3kgwz/v1.
+For additional information of how to proceed to run the protocol check the [protocols.io entry for this protocol](dx.doi.org/10.17504/protocols.io.q26g7yb3kgwz/v1.)
+
 You can do a test try with the files in the example folder inside this GitHub directory.
-
-
 
 ## Expected output files (file format/number)
 
