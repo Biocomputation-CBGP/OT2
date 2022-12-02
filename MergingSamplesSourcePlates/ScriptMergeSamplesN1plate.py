@@ -69,7 +69,7 @@ def run(protocol: protocol_api.ProtocolContext):
 			self.name_rack_falcon = variables_csv._get_value("Name 15mL Falcon Rack","Value")
 			self.name_source_plate = variables_csv._get_value("Name Source Plates","Value")
 			self.name_final_plate = variables_csv._get_value("Name Final Plates","Value")
-			self.maps_source_plates_names = variables_csv._get_value("Name Source Plates Maps","Value")[1:-1].replace(" ","").split(",") # We have the list of the maps files
+			self.maps_source_plates_names = variables_csv._get_value("Name Source Maps","Value")[1:-1].replace(" ","").split(",") # We have the list of the maps files
 			self.maps_source_plate = {} # We are going to fill this dictionary with the dataframes corresponding to the files
 			for index_map, map_source in enumerate(self.maps_source_plates_names):
 				self.maps_source_plate[index_map] = pd.read_csv("/data/user_storage/"+map_source+".csv", index_col = 0)
