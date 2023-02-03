@@ -87,7 +87,7 @@ This file should be located in the robot system, specifically in the following d
 
 ## How to run script
 
-1. Fill template
+1. Fill template (depending on the script that is going to be run, one or another)
 2. Convert to csv
 3. Pass csv and the 2 reading files (to directory */data/user_storage*) and script to OT-2 in which the protocol will be run
 4. Run script in OT and storing the output in a file
