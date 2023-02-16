@@ -6,16 +6,6 @@ For more info go to https://github.com/Biocomputation-CBGP/OT2/tree/main/Antibio
 https://www.protocols.io/view/ot-2-media-dispensing-and-culture-inoculation-prot-q26g7yb3kgwz/v1
 """
 
-"""
-Cosas por hacer en este script:
- - Hay que hacer control de que los numeros de source plates sean los mismos que los elementos de samples per plate y antibiotics per plate
-ya que da un error de indices, pero efectivamente se puede coger antes este error y decirle mucho mas rapido y facil
- - Control de errores en la parte de poner un mensaje mas esclarecedor cuando no hay ese labware
- - Control de errores de que haya 3 antibioticos (nombre de antibioticos) si hay tantos antibioticos en el "Antibiotics per plate" porque funciona bien y no deberia funcionar bien --> hay que ver porque esta funcionando bien eso
- - Control de errores de typos que no existan en los tips y ademas hay que hacer control de errores de que sea en la multi en el A o que sea el primer well de la columna --> hay que ver que hace cuando empieza por un B o cualquiera que no sea una A en la multi
- - Control de errores con el replace tiprack de que sea solo false o true
-"""
-
 
 ## Packages needed for the running of the protocol
 import opentrons.execute
