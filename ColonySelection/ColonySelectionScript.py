@@ -55,8 +55,10 @@ def run(protocol: protocol_api.ProtocolContext):
 			self.volume_transfer_colony = float(variables_csv._get_value("Vol Transfer Colony (uL)", "Value"))
 			self.volume_transfer_glycerol = float(variables_csv._get_value("Vol Transfer Glycerol (uL)", "Value"))
 			self.volume_transfer_water = float(variables_csv._get_value("Vol Transfer Water (uL)", "Value"))
-			self.file_transform = "/data/user_storage/"+variables_csv._get_value("Antibiotic Transposition Genome File Name", "Value") + ".csv" # In this file the selection values are higher than the grow_OD
-			self.file_integration = "/data/user_storage/"+variables_csv._get_value("Antibiotic Ampiciline Plasmid File Name", "Value") + ".csv" # In this file the selection values are lower than the grow_OD
+			# self.file_transform = "/data/user_storage/"+variables_csv._get_value("Antibiotic Transposition Genome File Name", "Value") + ".csv" # In this file the selection values are higher than the grow_OD
+			# self.file_integration = "/data/user_storage/"+variables_csv._get_value("Antibiotic Ampiciline Plasmid File Name", "Value") + ".csv" # In this file the selection values are lower than the grow_OD
+			self.file_transform = variables_csv._get_value("Antibiotic Transposition Genome File Name", "Value") + ".csv" # In this file the selection values are higher than the grow_OD
+			self.file_integration = variables_csv._get_value("Antibiotic Ampiciline Plasmid File Name", "Value") + ".csv" # In this file the selection values are lower than the grow_OD
 			self.left_pipette_name = variables_csv._get_value("Name Pipette Left Mount", "Value")
 			self.right_pipette_name = variables_csv._get_value("Name Pipette Right Mount", "Value")
 			self.left_pipette = None
@@ -68,9 +70,16 @@ def run(protocol: protocol_api.ProtocolContext):
 			self.number_glycerol_plates = int(variables_csv._get_value("Number of Glycerol Plates", "Value"))
 			self.number_pcr_plates = int(variables_csv._get_value("Number of PCR Plates", "Value"))
 			self.name_rack_falcons = variables_csv._get_value("Name Rack Falcon 15mL", "Value")
-			self.final_map_name = "/data/user_storage/"+variables_csv._get_value("Final Map Name", "Value")+".csv"
+			#self.final_map_name = "/data/user_storage/"+variables_csv._get_value("Final Map Name", "Value")+".csv"
+			self.final_map_name = variables_csv._get_value("Final Map Name", "Value")+".csv"
 			self.reactives_info = {"glycerol":{"position_tubes":[],"reactions_per_tube":[],"destination_plates":[]},"water":{"position_tubes":[],"reactions_per_tube":[],"destination_plates":[]}}
-			self.replace_tiprack = variables_csv._get_value("Replace Tiprack", "Value")
+			# self.replace_tiprack = variables_csv._get_value("Replace Tiprack", "Value")
+			if variables_csv._get_value("Replace Tiprack","Value").lower() == "true":
+				self.replace_tiprack = True
+			elif variables_csv._get_value("Replace Tiprack","Value").lower() == "false":
+				self.replace_tiprack = False
+			else:
+				raise Exception("Replace Tiprack value can only be True or False")
 	
 	def check_setted_parameters(variables):
 		"""
@@ -89,6 +98,18 @@ def run(protocol: protocol_api.ProtocolContext):
 		else:
 			pass
 		
+		# Check if the volume that we are trying to take is bigger than the one in the well
+		vol_colonies_total = (variables.number_glycerol_plates + variables.number_pcr_plates)*variables.volume_transfer_colony
+		max_volume_well_source_plates = float(list(labware_context.get_labware_definition(variables.name_source_plate)["wells"].values())[0]['totalLiquidVolume'])
+		if vol_colonies_total > max_volume_well_source_plates:
+			errors.append(f'To run the protocol {vol_colonies_total}ul of each colony is needed and the max volume of each well in source plate is {max_volume_well_source_plates}ul')
+		
+		# Check if the files have same dimensions as the source plate
+		
+		
+		
+		
+		
 		# We are going to check if the OD files exist in the /data/user_storage directory
 		try:
 			open(variables.file_transform,"r")
@@ -98,16 +119,12 @@ def run(protocol: protocol_api.ProtocolContext):
 		
 		# Check if there is any typo in the starting tip of both pipettes
 		try:
-			if not any(variables.starting_tip_right_pip in columns for columns in labware_context.get_labware_definition(define_tiprack(variables.right_pipette_name))["ordering"]):
+			if variables.starting_tip_right_pip not in labware_context.get_labware_definition(define_tiprack(variables.right_pipette_name))["groups"][0]["wells"]:
 				errors.append("Starting tip of right pipette is not valid, check for typos")
-			if not any(variables.starting_tip_left_pip in columns for columns in labware_context.get_labware_definition(define_tiprack(variables.left_pipette_name))["ordering"]):
+			if variables.starting_tip_left_pip not in labware_context.get_labware_definition(define_tiprack(variables.left_pipette_name))["groups"][0]["wells"]:
 				errors.append("Starting tip of left pipette is not valid, check for typos")
 		except:
 			errors.append("At least one of the pipettes is not established, check for typos in the name")
-		
-		# Lets check that the replace tiprack value is a correct one
-		if variables.replace_tiprack.lower() not in ["false","true"]:
-			errors.append("Replace Tiprack value can only be True or False")
 		
 		
 		return errors
@@ -393,6 +410,7 @@ def run(protocol: protocol_api.ProtocolContext):
 		# Some general information that the user has setted
 		print("--------------------------------------------------------------\nGENERAL INFORMATION\nThis details are set by the user, this is only a remainder of some variables")
 		print("\t- Number total of selected colonies (all source plates): "+str(len(samples_picked)))
+		print("\t- Volume (uL) of each colony that is needed: "+str((variables.number_glycerol_plates + variables.number_pcr_plates)*variables.volume_transfer_colony))
 		print("\t- Number of total final plates: "+str(variables.number_glycerol_plates+variables.number_pcr_plates))
 		print("\t- Final volume of output glycerol labware (uL): "+str(variables.volume_transfer_colony+variables.volume_transfer_glycerol))
 		print("\t- Final volume of output PCR labware (uL): "+str(variables.volume_transfer_colony+variables.volume_transfer_water))
@@ -436,7 +454,8 @@ def run(protocol: protocol_api.ProtocolContext):
 #--------------------------------
 	try:
 		current_step = "Reading csv and transforming them to parameters/variables"
-		variables_csv = pd.read_csv("/data/user_storage/Variables-ColonieScreening-OT.csv", index_col = 0)
+		#variables_csv = pd.read_csv("/data/user_storage/Variables-ColonieScreening-OT.csv", index_col = 0)
+		variables_csv = pd.read_csv("Variables-ColonieScreening-OT.csv", index_col = 0)
 		variables = setted_parameters(variables_csv)
 		
 		current_step = "Validating csv variables values"
@@ -486,6 +505,11 @@ Before proceeding this error(s) should be fixed""")
 		# Loading the csv from Amp and Ant antibiotics (for example)
 		data_transform = pd.read_csv(variables.file_transform, index_col = 0)
 		data_integration = pd.read_csv(variables.file_integration, index_col = 0)
+		
+		# Lets check if the files have the same dimensions as the source plate
+		size_source_plate = (len(labware_context.get_labware_definition(variables.name_source_plate)["ordering"][0]), len(labware_context.get_labware_definition(variables.name_source_plate)["ordering"]))#(rows, columns)
+		if data_transform.shape != size_source_plate or data_integration.shape != size_source_plate:
+			raise Exception("One or both files given with data to compate does not have the same dimensions of the source plate")
 		
 		current_step = "Selecting colonies that fulfill the conditions"
 		# Select the colonies that meet our conditions of growth (selective conditions)
