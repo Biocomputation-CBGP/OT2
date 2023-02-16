@@ -6,6 +6,17 @@ For more info go to https://github.com/Biocomputation-CBGP/OT2/tree/main/Antibio
 https://www.protocols.io/view/ot-2-media-dispensing-and-culture-inoculation-prot-q26g7yb3kgwz/v1
 """
 
+"""
+Cosas por hacer en este script:
+ - Hay que hacer control de que los numeros de source plates sean los mismos que los elementos de samples per plate y antibiotics per plate
+ya que da un error de indices, pero efectivamente se puede coger antes este error y decirle mucho mas rapido y facil
+ - Control de errores en la parte de poner un mensaje mas esclarecedor cuando no hay ese labware
+ - Control de errores de que haya 3 antibioticos (nombre de antibioticos) si hay tantos antibioticos en el "Antibiotics per plate" porque funciona bien y no deberia funcionar bien --> hay que ver porque esta funcionando bien eso
+ - Control de errores de typos que no existan en los tips y ademas hay que hacer control de errores de que sea en la multi en el A o que sea el primer well de la columna --> hay que ver que hace cuando empieza por un B o cualquiera que no sea una A en la multi
+ - Control de errores con el replace tiprack de que sea solo false o true
+"""
+
+
 ## Packages needed for the running of the protocol
 import opentrons.execute
 from opentrons import protocol_api
@@ -71,11 +82,15 @@ def run(protocol: protocol_api.ProtocolContext):
 				self.replace_tiprack = True
 			elif variables_csv._get_value("Replace Tipracks","Value").lower() == "false":
 				self.replace_tiprack = False
+			else:
+				raise Exception("Replace Tiprack value can only be True or False")
 			self.antibiotics = {} # Initialize
 			for number_antibiotic in range(self.number_antibiotics):
-				self.antibiotics[number_antibiotic] = {"name":variables_csv._get_value("Name Antibiotics","Value").strip().split(",")[number_antibiotic]}
+				self.antibiotics[number_antibiotic] = {"name":variables_csv._get_value("Name Antibiotics","Value").replace(" ","").split(",")[number_antibiotic]}
 			self.data_source_plates = {} # Will be filled in the course of the script
 			self.data_final_plates = {} # Will be filled in the course of the script
+			self.antibiotics_per_plate = variables_csv._get_value("Antibiotics per plate","Value")[1:-1].strip().split("),(")
+			
 			return
 		
 		def proccess_variables(self, name_parameter, value_default_empty, must_entries):
@@ -173,8 +188,44 @@ def run(protocol: protocol_api.ProtocolContext):
 			errors.append("Source and final plates have not same dimensions (rows and columns)")
 		else:
 			pass
-			
-			return errors
+
+		# We are going to check if the numer of indexes in antibiotics per plate is the same as number of Name antibiotics
+		all_plates_antibiotics = ",".join(variables.antibiotics_per_plate).strip().split(",")
+		all_plates_antibiotics = list(dict.fromkeys(",".join(variables.antibiotics_per_plate).strip().split(",")))
+		all_plates_antibiotics = [eval(i) for i in all_plates_antibiotics]
+		if len(all_plates_antibiotics) != variables.number_antibiotics:
+			errors.append("Number of antibiotics used in plates does not match the number of antibiotics names")
+		else: # We have checked that they are the same numbers, lets check other possible problems now
+			# Check if any of the indexes is greater than the number of antibiotics that we have
+			if any(antibiotic_index > variables.number_antibiotics or antibiotic_index < 1 for antibiotic_index in all_plates_antibiotics):
+				errors.append("Indexes in 'Antibiotics per plate' have to be between 1 and the number of different antibiotics used in the protocol")
+			# Check if some antibiotic that we have is not in the antibiotic plates variable
+			for i_ant in range(1, variables.number_antibiotics+1):
+				if i_ant not in all_plates_antibiotics:
+					errors.append(f'The antibiotic "{variables.antibiotics[i_ant-1]["name"]}" is not used in this protocol')
+		
+		# Control of typos in the initial tip both of right pipette and left pipette, i.e., check if that tip exist
+		try:
+			if variables.starting_tip_right_pip not in labware_context.get_labware_definition(define_tiprack(variables.name_right_pipette))["groups"][0]["wells"]:
+				print(variables.starting_tip_right_pip)
+				errors.append("Starting tip of right pipette is not valid, check for typos")
+			if variables.starting_tip_left_pip not in labware_context.get_labware_definition(define_tiprack(variables.name_left_pipette))["groups"][0]["wells"]:
+				print(variables.starting_tip_left_pip)
+				errors.append("Starting tip of left pipette is not valid, check for typos")
+		except:
+			errors.append("At least one of the pipettes is not established, check for typos in the name")
+
+		# Control that the multipipette actually starts at A and not other letter, in general that starts with the first place of the column in the tiprack
+		# This can only be checked correctly if the tip actually exists
+		if ("At least one of the pipettes start tip does not exist, check for typos" not in errors) and (variables.starting_tip_right_pip[0].lower() != "a"):
+			# Check that has to be A in the multichannel
+			errors.append("The initial tip of the multichannel pipette needs to be at the top of the column, i.e., it has to start with an A")
+		else:
+			#The user need to check other errors first
+			pass
+		
+		
+		return errors
 	
 	def define_tiprack (pipette):
 			"""
@@ -460,9 +511,14 @@ def run(protocol: protocol_api.ProtocolContext):
 	try:
 		current_step = "Reading csv and transforming them to parameters/variables"
 		# Setting variables and calculating others
-		variables_csv = pd.read_csv("/data/user_storage/Variables-AntibioticPlatesCreation-OT.csv", index_col = 0)
+		#variables_csv = pd.read_csv("/data/user_storage/Variables-AntibioticPlatesCreation-OT.csv", index_col = 0)
+		variables_csv = pd.read_csv("Variables-AntibioticPlatesCreation-OT.csv", index_col = 0)
 		# We are going to convert these parameters into arguments of the class variables and we are going to process some of them so they can be usable (they are going to be dictionaries in their majority)
 		variables = setted_parameters(variables_csv)
+		# We are going to check that the number of plate sources is according to antibiotics per plate
+		if len(variables.antibiotics_per_plate) != variables.number_source_plates:
+			raise Exception("Either typo in the variable 'Antibiotics per plate' or the number of source plates and the antibiotics per plate variables does not match")
+		
 		wells_source_plate = len(labware_context.get_labware_definition(variables.name_source_plate)["wells"])
 		setted_parameters.proccess_variables(variables, "samples_per_plate", wells_source_plate, variables.number_source_plates)
 		
@@ -470,7 +526,7 @@ def run(protocol: protocol_api.ProtocolContext):
 		variables.number_samples = sum(variables.samples_per_plate.values())
 		# Fill the dictionary for data_source_plates (samples and antibiotic), final plates will be filled after
 		for number_plate in range(variables.number_source_plates):
-				list_antibiotics = variables_csv._get_value("Antibiotics per plate","Value").strip().split(",(")[number_plate].replace("(","").replace(")","").split(",")
+				list_antibiotics = variables.antibiotics_per_plate[number_plate].replace("(","").replace(")","").split(",")
 				list_antibiotics = [eval(i)-1 for i in list_antibiotics]
 				variables.data_source_plates[number_plate+1] = {"samples":variables.samples_per_plate[number_plate+1], "antibiotics":list_antibiotics,"final_plates":[]} # Final plate swill be filled after
 		
@@ -562,7 +618,7 @@ def run(protocol: protocol_api.ProtocolContext):
 		protocol.home()
 		
 		current_step = "Printing User Information"
-		print_information_user(variables, labware_falcons) #positions of the antibiotics and the reactions per tube of each one are in the varaibles class
+		#print_information_user(variables, labware_falcons) #positions of the antibiotics and the reactions per tube of each one are in the varaibles class
 		
 	except Exception as e:
 		print("-------------------------------------------------------------------------------")
