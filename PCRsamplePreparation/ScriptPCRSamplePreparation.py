@@ -57,7 +57,10 @@ def run(protocol: protocol_api.ProtocolContext):
                 self.name_map = None
             elif modular_parameters["Optional Map"]["Value"].lower() == "true":
                 self.map = True
-                self.name_map = "/data/user_storage/"+modular_parameters["Name of map"]["Value"]
+                # self.name_map = "/data/user_storage/"+modular_parameters["Name of map"]["Value"]
+                self.name_map = modular_parameters["Name of map"]["Value"]
+            else:
+                raise Exception("'Optional map' variable value can only be True or False")
             self.number_source_plates = int(modular_parameters["Number of source plates"]["Value"])
             self.number_samples_source_plates = modular_parameters["Number of samples in every source plate"]["Value"]
             self.index_start_source_plate = modular_parameters["Index of start cell in source plate"]["Value"]
@@ -81,7 +84,7 @@ def run(protocol: protocol_api.ProtocolContext):
             elif modular_parameters["Replace Tiprack"]["Value"].lower() == "true":
                 self.replace_tiprack = True
             else:
-                self.replace_tiprack = False
+                raise Exception("Replace Tiprack value can only be True or False")
             self.need_change_tiprack = False
             self.number_reactions = self.number_colonies+self.number_controls
             self.right_pipette = None
@@ -243,11 +246,14 @@ def run(protocol: protocol_api.ProtocolContext):
         if variables.index_start_final_plate > len(labware_context.get_labware_definition(variables.name_final_plate)["wells"]):
             errors.append("Index of start for the final plate is larger than the number of wells of that labware")
         number_wells_source_plate = len(labware_context.get_labware_definition(variables.name_source_plate)["wells"])
-        for index_plate in variables.index_start_source_plate.values():
-            if int(index_plate[0]) > number_wells_source_plate:
+        
+        for plate_number, start_index_plate in variables.index_start_source_plate.items():
+            if int(start_index_plate[0]) > number_wells_source_plate:
                 errors.append("Index of start for one or more source plate(s) is larger than the number of wells of that labware")
                 break
-    
+            elif int(start_index_plate[0]) + int(variables.number_samples_source_plates[plate_number][0]) > number_wells_source_plate:
+                errors.append("Index of start + number of colonies for one or more source plate(s) is larger than the number of wells of te source labware")
+        
         # We are goin to check that all the wells that are mentioned exist in the correspondent plates (i.e., we are looking for typos like AA1 or A111)
         all_values_wells_source_plate = [x for x in sum(list(variables.positions_not_perform_pcr.values())+list(variables.positions_control.values()),[]) if x != "None"]
         name_wells_source_plate = list(labware_context.get_labware_definition(variables.name_source_plate)["wells"].keys())
@@ -263,7 +269,20 @@ def run(protocol: protocol_api.ProtocolContext):
         if variables.name_left_pip not in ["None", "-"]:
             if not any(variables.starting_tip_left_pip in columns for columns in labware_context.get_labware_definition(define_tiprack(variables.name_left_pip))["ordering"]):
                 errors.append("Starting tip of left pipette is not valid, check for typos")
-
+        
+        # Check that numer of primer sets and primers per set are greater than 0
+        if variables.number_primers == 0 or variables.sets == 0:
+            errors.append("The number of primers per set and/or the set value (s) are 0")
+        
+        
+        # Check the values of volumes fit in the final wells and if the volume of colonies is enough
+        final_volume_well = list(labware_context.get_labware_definition(variables.name_final_plate)["wells"].values())[0]["totalLiquidVolume"]
+        source_volume_well = list(labware_context.get_labware_definition(variables.name_source_plate)["wells"].values())[0]["totalLiquidVolume"]
+        if variables.volume_colonie+variables.volume_reactives > final_volume_well:
+            errors.append("The volume of colonies plus the volume of reactives does not fit in the wells of final plate (s)")
+        if variables.volume_colonie*variables.sets > source_volume_well:
+            errors.append("The volume of colonies needed for the number of sets exceeds the max volume of the source plate wells")
+            
         return errors, warnings
 
     def define_tiprack (pipette):
@@ -875,7 +894,8 @@ def run(protocol: protocol_api.ProtocolContext):
     try:
         # Loading of the csv parameters and using the first column (the name of the variables) as index
         current_step = "Reading csv and transforming them to parameters/variables"
-        variables_df = pd.read_csv("/data/user_storage/Variables-PCRs-OT.csv", index_col = 0)
+        # variables_df = pd.read_csv("/data/user_storage/Variables-PCRs-OT.csv", index_col = 0)
+        variables_df = pd.read_csv("Variables-PCRs-OT.csv", index_col = 0)
 
         # We are going to convert these parameters into arguments of the class variables and we ar egoing to process some of them so they can be usable (they are going to be dictionaries)
         variables = setted_parameters(variables_df.to_dict(orient = "index"))
