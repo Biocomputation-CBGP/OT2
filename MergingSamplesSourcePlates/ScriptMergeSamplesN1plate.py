@@ -58,21 +58,25 @@ def run(protocol: protocol_api.ProtocolContext):
 			self.left_pipette = None
 			self.starting_tip_right_pip = varibles_csv._get_value("Initial Tip Right Pipette","Value")
 			self.starting_tip_left_pip = varibles_csv._get_value("Initial Tip Left Pipette","Value")
-			if varibles_csv._get_value("Replace Tipracks","Value").lower() == "true":
+			if variables_csv._get_value("Replace Tipracks","Value").lower() == "true":
 				self.replace_tiprack = True
-			elif varibles_csv._get_value("Replace Tipracks","Value").lower() == "false":
+			elif variables_csv._get_value("Replace Tipracks","Value").lower() == "false":
 				self.replace_tiprack = False
-			self.name_map = "/data/user_storage/"+variables_csv._get_value("Name maps","Value")
+			else:
+				raise Exception("Replace Tiprack value can only be True or False")
+			# self.name_map = "/data/user_storage/"+variables_csv._get_value("Name maps","Value")
+			self.name_map = variables_csv._get_value("Name maps","Value")
 			self.volume_transfer_sample = float(variables_csv._get_value("Volume Colony transfer (uL)","Value"))
 			self.volume_transfer_water = float(variables_csv._get_value("Volume Water transfer (uL)","Value"))
 			self.water = {"position_tubes":[], "reactions_per_tube":[]}
 			self.name_rack_falcon = variables_csv._get_value("Name 15mL Falcon Rack","Value")
 			self.name_source_plate = variables_csv._get_value("Name Source Plates","Value")
 			self.name_final_plate = variables_csv._get_value("Name Final Plates","Value")
-			self.maps_source_plates_names = variables_csv._get_value("Name Source Maps","Value")[1:-1].replace(" ","").split(",") # We have the list of the maps files
+			self.maps_source_plates_names = variables_csv._get_value("Name Source Plates Maps","Value")[1:-1].replace(" ","").split(",") # We have the list of the maps files
 			self.maps_source_plate = {} # We are going to fill this dictionary with the dataframes corresponding to the files
 			for index_map, map_source in enumerate(self.maps_source_plates_names):
-				self.maps_source_plate[index_map] = pd.read_csv("/data/user_storage/"+map_source+".csv", index_col = 0)
+				# self.maps_source_plate[index_map] = pd.read_csv("/data/user_storage/"+map_source+".csv", index_col = 0)
+				self.maps_source_plate[index_map] = pd.read_csv(map_source+".csv", index_col = 0)
 			self.type_selection = variables_csv._get_value("Type of Sample Selection", "Value").lower()
 			self.number_samples_source_plates = variables_csv._get_value("Number of samples in every source plate", "Value")
 			self.index_start_source_plate = variables_csv._get_value("Index of start cell in source plate", "Value")
@@ -144,16 +148,15 @@ def run(protocol: protocol_api.ProtocolContext):
 		
 		# Index of any of the source plates is larger than the wells of that plate
 		if any(index_labware > len(labware_context.get_labware_definition(variables.name_source_plate)["wells"]) for index_labware in variables.index_start_source_plate.values()):
-			errors.append("One or more of the indexes is higher than the number of wells in the source plate")
+			errors.append("One or more of the start indexes is higher than the number of wells in the source plate")
 			
 		# Number of samples of any of the source plates is larger than the wells of that plate
 		if any(number_samples > len(labware_context.get_labware_definition(variables.name_source_plate)["wells"]) for number_samples in variables.number_samples_source_plates.values()):
 			errors.append("One or more of the samples per source plate is higher than the number of wells in the source plate")
 			
-		# Index+number of samples of any of the source plates is larger than the wells of that plate	
-		if any(index+number > len(labware_context.get_labware_definition(variables.name_final_plate)["wells"]) for index, number in list(zip(variables.index_start_source_plate.values(), variables.number_samples_source_plates.values()))):
+		# Index+number of samples of any of the source plates is larger than the wells of that plate
+		if any(index+number > len(labware_context.get_labware_definition(variables.name_final_plate)["wells"]) for index, number in list(zip(dict(sorted(variables.index_start_source_plate.items())).values(),dict(sorted(variables.number_samples_source_plates.items())).values()))):
 			errors.append("One or more of the samples per plate + starting index of the plate is higher than the numer of wells in the source plate")
-		
 		# Check if the samples that we are going to take are lower or equal to the number of samples in each of the source plate
 		sorted_values_by_keys = [variables.number_samples_source_plates[key] for key in sorted(variables.number_samples_source_plates.keys())]
 		# This sorting is needed because the list of samples per plate is ordered from the first source plate to the last one and we are going to "merge" both lists
@@ -175,7 +178,10 @@ def run(protocol: protocol_api.ProtocolContext):
 		# Check if the type of selection variable is one of the established ones
 		if variables.type_selection not in ["random","first","last"]:
 			errors.append("'"+variables.type_selection+"' not recognised as a 'type of sample selection'. Options are 'random', 'first' and 'last'")
-		
+			
+		# Check if the number of elements in samples per plate is the same as number of sourc eplates, because if we are not going to take from it, it doesnt make sense to have it in the deck
+		if any(number_samples == 0 for number_samples in variables.samples_per_plate.values()):
+			errors.append("You are not taking any samples from one of the source plates")
 		return errors
 
 	def define_tiprack (pipette):
@@ -572,7 +578,8 @@ def run(protocol: protocol_api.ProtocolContext):
 	try:
 		current_step = "Reading csv and transforming them to parameters/variables"
 		# Loading of the csv parameters and using the first column (the name of the variables) as index
-		variables_csv = pd.read_csv("/data/user_storage/Variables-SamplesMerging-OT.csv", index_col = 0)
+		# variables_csv = pd.read_csv("/data/user_storage/Variables-SamplesMerging-OT.csv", index_col = 0)
+		variables_csv = pd.read_csv("Variables-SamplesMerging-OT.csv", index_col = 0)
 
 		# We are going to convert these parameters into arguments of the class variables and we ar egoing to process some of them so they can be usable (they are going to be dictionaries)
 		variables = setted_parameters(variables_csv)
