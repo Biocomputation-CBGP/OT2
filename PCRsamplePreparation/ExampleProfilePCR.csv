@@ -1,0 +1,9 @@
+﻿Temperature (C),Time (s),Number of cycles,Cycle Status
+98,300,-,-
+98,10,-,Start
+30,30,-,-
+72,90,6,End
+98,10,-,Start
+45,30,-,-
+99,90,30,End
+72,300,-,-
