@@ -55,10 +55,10 @@ def run(protocol: protocol_api.ProtocolContext):
 			self.volume_transfer_colony = float(variables_csv._get_value("Vol Transfer Colony (uL)", "Value"))
 			self.volume_transfer_glycerol = float(variables_csv._get_value("Vol Transfer Glycerol (uL)", "Value"))
 			self.volume_transfer_water = float(variables_csv._get_value("Vol Transfer Water (uL)", "Value"))
-			# self.file_transform = "/data/user_storage/"+variables_csv._get_value("Antibiotic Transposition Genome File Name", "Value") + ".csv" # In this file the selection values are higher than the grow_OD
-			# self.file_integration = "/data/user_storage/"+variables_csv._get_value("Antibiotic Ampiciline Plasmid File Name", "Value") + ".csv" # In this file the selection values are lower than the grow_OD
-			self.file_transform = variables_csv._get_value("Antibiotic Transposition Genome File Name", "Value") + ".csv" # In this file the selection values are higher than the grow_OD
-			self.file_integration = variables_csv._get_value("Antibiotic Ampiciline Plasmid File Name", "Value") + ".csv" # In this file the selection values are lower than the grow_OD
+			self.file_transform = "/data/user_storage/"+variables_csv._get_value("Antibiotic Transposition Genome File Name", "Value") + ".csv" # In this file the selection values are higher than the grow_OD
+			self.file_integration = "/data/user_storage/"+variables_csv._get_value("Antibiotic Ampiciline Plasmid File Name", "Value") + ".csv" # In this file the selection values are lower than the grow_OD
+			# self.file_transform = variables_csv._get_value("Antibiotic Transposition Genome File Name", "Value") + ".csv" # In this file the selection values are higher than the grow_OD
+			# self.file_integration = variables_csv._get_value("Antibiotic Ampiciline Plasmid File Name", "Value") + ".csv" # In this file the selection values are lower than the grow_OD
 			self.left_pipette_name = variables_csv._get_value("Name Pipette Left Mount", "Value")
 			self.right_pipette_name = variables_csv._get_value("Name Pipette Right Mount", "Value")
 			self.left_pipette = None
@@ -70,8 +70,8 @@ def run(protocol: protocol_api.ProtocolContext):
 			self.number_glycerol_plates = int(variables_csv._get_value("Number of Glycerol Plates", "Value"))
 			self.number_pcr_plates = int(variables_csv._get_value("Number of PCR Plates", "Value"))
 			self.name_rack_falcons = variables_csv._get_value("Name Rack Falcon 15mL", "Value")
-			#self.final_map_name = "/data/user_storage/"+variables_csv._get_value("Final Map Name", "Value")+".csv"
-			self.final_map_name = variables_csv._get_value("Final Map Name", "Value")+".csv"
+			self.final_map_name = "/data/user_storage/"+variables_csv._get_value("Final Map Name", "Value")+".csv"
+			# self.final_map_name = variables_csv._get_value("Final Map Name", "Value")+".csv"
 			self.reactives_info = {"glycerol":{"position_tubes":[],"reactions_per_tube":[],"destination_plates":[]},"water":{"position_tubes":[],"reactions_per_tube":[],"destination_plates":[]}}
 			# self.replace_tiprack = variables_csv._get_value("Replace Tiprack", "Value")
 			if variables_csv._get_value("Replace Tiprack","Value").lower() == "true":
@@ -454,8 +454,8 @@ def run(protocol: protocol_api.ProtocolContext):
 #--------------------------------
 	try:
 		current_step = "Reading csv and transforming them to parameters/variables"
-		#variables_csv = pd.read_csv("/data/user_storage/Variables-ColonieScreening-OT.csv", index_col = 0)
-		variables_csv = pd.read_csv("Variables-ColonieScreening-OT.csv", index_col = 0)
+		variables_csv = pd.read_csv("/data/user_storage/Variables-ColonieScreening-OT.csv", index_col = 0)
+		# variables_csv = pd.read_csv("Variables-ColonieScreening-OT.csv", index_col = 0)
 		variables = setted_parameters(variables_csv)
 		
 		current_step = "Validating csv variables values"
