@@ -348,12 +348,10 @@ def run(protocol: protocol_api.ProtocolContext):
 		
 		# Set the final plates which number has been previously calculated and it is in the setted_parameters class
 		labware_final = setting_number_plates(variables.plates_final, variables.name_final_plate)
-		list_labware_final = copy.deepcopy(labware_final)
 		
 		#Now we are going to assign to which final plates the samples from the source plates should go
-		for data_source_plate in variables.data_source_plates.values():
-			data_source_plate["final_plates"] = list_labware_final[:len(data_source_plate["antibiotics"])]
-			del list_labware_final[:len(data_source_plate["antibiotics"])]
+		for index, data_source_plate in enumerate(variables.data_source_plates.values()):
+			data_source_plate["final_plates"] = labware_final[index*len(data_source_plate["antibiotics"]):(index*len(data_source_plate["antibiotics"]))+len(data_source_plate["antibiotics"])]
 		
 		
 		# Set the antibiotic falcons
@@ -501,8 +499,8 @@ def run(protocol: protocol_api.ProtocolContext):
 	try:
 		current_step = "Reading csv and transforming them to parameters/variables"
 		# Setting variables and calculating others
-		#variables_csv = pd.read_csv("/data/user_storage/Variables-AntibioticPlatesCreation-OT.csv", index_col = 0)
-		variables_csv = pd.read_csv("Variables-AntibioticPlatesCreation-OT.csv", index_col = 0)
+		variables_csv = pd.read_csv("/data/user_storage/Variables-AntibioticPlatesCreation-OT.csv", index_col = 0)
+		#variables_csv = pd.read_csv("Variables-AntibioticPlatesCreation-OT.csv", index_col = 0)
 		# We are going to convert these parameters into arguments of the class variables and we are going to process some of them so they can be usable (they are going to be dictionaries in their majority)
 		variables = setted_parameters(variables_csv)
 		# We are going to check that the number of plate sources is according to antibiotics per plate
@@ -546,8 +544,10 @@ def run(protocol: protocol_api.ProtocolContext):
 		
 		current_step = "Defining pipettes and checking them"
 		# We can define them because in the parameters check we have seen if there is a pipette that it is not in the mount
-		variables.right_pipette = protocol.load_instrument(variables.name_right_pipette, mount = "right")
-		variables.left_pipette = protocol.load_instrument(variables.name_left_pipette, mount = "left")
+		# variables.right_pipette = protocol.load_instrument(variables.name_right_pipette, mount = "right")
+		# variables.left_pipette = protocol.load_instrument(variables.name_left_pipette, mount = "left")
+		variables.right_pipette = protocol.load_instrument(variables.name_right_pipette, mount = "left")
+		variables.left_pipette = protocol.load_instrument(variables.name_left_pipette, mount = "right")
 		
 		# We are going to perform some pipette checkings because they need to be setted into the instrument context to these controls to be done
 		# First we are going to check if the multi and single channel are put correctly
@@ -608,7 +608,7 @@ def run(protocol: protocol_api.ProtocolContext):
 		protocol.home()
 		
 		current_step = "Printing User Information"
-		#print_information_user(variables, labware_falcons) #positions of the antibiotics and the reactions per tube of each one are in the varaibles class
+		print_information_user(variables, labware_falcons) #positions of the antibiotics and the reactions per tube of each one are in the varaibles class
 		
 	except Exception as e:
 		print("-------------------------------------------------------------------------------")
