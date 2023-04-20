@@ -64,8 +64,8 @@ def run(protocol: protocol_api.ProtocolContext):
 				self.replace_tiprack = False
 			else:
 				raise Exception("Replace Tiprack value can only be True or False")
-			# self.name_map = "/data/user_storage/"+variables_csv._get_value("Name maps","Value")
-			self.name_map = variables_csv._get_value("Name maps","Value")
+			self.name_map = "/data/user_storage/"+variables_csv._get_value("Name maps","Value")
+			# self.name_map = variables_csv._get_value("Name maps","Value")
 			self.volume_transfer_sample = float(variables_csv._get_value("Volume Colony transfer (uL)","Value"))
 			self.volume_transfer_water = float(variables_csv._get_value("Volume Water transfer (uL)","Value"))
 			self.water = {"position_tubes":[], "reactions_per_tube":[]}
@@ -75,8 +75,8 @@ def run(protocol: protocol_api.ProtocolContext):
 			self.maps_source_plates_names = variables_csv._get_value("Name Source Plates Maps","Value")[1:-1].replace(" ","").split(",") # We have the list of the maps files
 			self.maps_source_plate = {} # We are going to fill this dictionary with the dataframes corresponding to the files
 			for index_map, map_source in enumerate(self.maps_source_plates_names):
-				# self.maps_source_plate[index_map] = pd.read_csv("/data/user_storage/"+map_source+".csv", index_col = 0)
-				self.maps_source_plate[index_map] = pd.read_csv(map_source+".csv", index_col = 0)
+				self.maps_source_plate[index_map] = pd.read_csv("/data/user_storage/"+map_source+".csv", index_col = 0)
+				# self.maps_source_plate[index_map] = pd.read_csv(map_source+".csv", index_col = 0)
 			self.type_selection = variables_csv._get_value("Type of Sample Selection", "Value").lower()
 			self.number_samples_source_plates = variables_csv._get_value("Number of samples in every source plate", "Value")
 			self.index_start_source_plate = variables_csv._get_value("Index of start cell in source plate", "Value")
@@ -578,8 +578,8 @@ def run(protocol: protocol_api.ProtocolContext):
 	try:
 		current_step = "Reading csv and transforming them to parameters/variables"
 		# Loading of the csv parameters and using the first column (the name of the variables) as index
-		# variables_csv = pd.read_csv("/data/user_storage/Variables-SamplesMerging-OT.csv", index_col = 0)
-		variables_csv = pd.read_csv("Variables-SamplesMerging-OT.csv", index_col = 0)
+		variables_csv = pd.read_csv("/data/user_storage/Variables-SamplesMerging-OT.csv", index_col = 0)
+		# variables_csv = pd.read_csv("Variables-SamplesMerging-OT.csv", index_col = 0)
 
 		# We are going to convert these parameters into arguments of the class variables and we ar egoing to process some of them so they can be usable (they are going to be dictionaries)
 		variables = setted_parameters(variables_csv)
