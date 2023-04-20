@@ -14,6 +14,7 @@ import pandas as pd
 import logging
 import math
 import copy
+import numpy as np
 
 ## Structure needed for the running of th escript in the OT
 metadata = {
@@ -493,6 +494,72 @@ def run(protocol: protocol_api.ProtocolContext):
 			print("\n--------------------------------------------------------------")
 		return
 
+
+#--------------------------------
+#--------------------------------
+# PARA CAMBIAR EL MAPA DE LO QUE TENIAMOS A LO OTRO, A EQUIVALENTE COMO LOS OTROS SCIPTS
+
+	def pds_labware_sources(labware_source):
+		"""
+		Function destined to create a DataFrame with the dimensions of the labware_source.
+		
+		Its main use is to creat emaps that will be filled during the running of the protocol to track where is every sample going
+		
+		It is destined to create a Dataframe in which the columns are numbers and the rows letters (only 1 letter) (as most of the 96 tisue plates)
+		Future improvements will take in account than the rows could have more than one letter, for example, a well that will be AA5
+		"""
+		
+		# We obtain the names of the columns and the rows from the labware definition
+		labware_wells = labware_context.get_labware_definition(labware_source[0].name)["groups"][0]["wells"]
+		name_rows = sorted(list(set([well[0] for well in labware_wells])))
+		number_rows = len(name_rows)
+		number_columns = len(set([well[1:] for well in labware_wells]))
+		
+		# Initialize the dictiony of dataframes
+		dataframes_source_with_index = {}
+		
+		# Create the dataframes for every labware
+		for labware in labware_source:
+			dataframes_source_with_index[int(str(labware).split(" ")[-1])] = pd.DataFrame(np.full((number_rows,number_columns),None),columns=list(range(1,number_columns+1)),index=name_rows)
+			dataframes_source_with_index[int(str(labware).split(" ")[-1])].index.name = "Row/Column"
+	
+		return dataframes_source_with_index
+
+	def map_tracking(pos_source, pos_final, dataframes_with_index, map_source_plate):
+		"""
+		Function that will track which sample from the source plate (pos_source in map_source_plate) is being dispense in the pos_final
+		
+		This way we will obtain a map of the identifiers of the plate + their position in the deck and we can backtrack the samples in case that we need it
+		"""
+		
+		# Process the pos_source and pos_final to get the well and the labware position in the deck to fill correctly the dataframe from dataframes_with_index 
+		pos_source_deck = str(pos_source).split(" ")[-1]
+		pos_source_labware = str(pos_source).split(" ")[0]
+		
+		column_pos_cource = str(pos_source_labware[1:])
+		row_pos_source = str(pos_source_labware[0])
+		
+		pos_final_deck = str(pos_final).split(" ")[-1]
+		pos_final_labware = str(pos_final).split(" ")[0]
+		
+		
+		identifier_sample = map_source_plate[int(pos_source_deck)-1][column_pos_cource][row_pos_source]
+	
+		
+		dataframes_with_index[int(pos_final_deck)][int(pos_final_labware[1:])][pos_final_labware[0]] = str(identifier_sample+" on "+pos_source_deck)
+		# We are going to still put the position on the deck because 2 samples can have the same identifier in different plates
+		
+		return
+
+
+
+
+
+#--------------------------------
+#--------------------------------
+
+
+
 #Body of the script
 #--------------------------------
 #--------------------------------
@@ -565,6 +632,11 @@ def run(protocol: protocol_api.ProtocolContext):
 		
 		# Set the labware that we need
 		labware_source, labware_final, labware_falcons = setting_labware(variables)
+		
+		# Create the dataframes for the mapping
+		current_step = "Creating maps of the final labware"
+		# First we create the maps for filling, we are creating it even if we dont want it
+		maps_final_plates = pds_labware_sources(labware_final)
 		
 		# Distribute the antibiotics to the respective plates
 		current_step = "Distributing antibiotic(s) to plate(s)"
