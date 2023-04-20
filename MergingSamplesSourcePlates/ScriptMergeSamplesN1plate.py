@@ -134,7 +134,19 @@ def run(protocol: protocol_api.ProtocolContext):
 # Functions
 # ----------------------------------
 # ----------------------------------
+	def mydeepcopy(L):
+		if isinstance(L, list):
+			ret = []
+			for i in L:
+				ret.append(mydeepcopy(i))
+		# elif isinstance(L, (int, float, type(None), str, bool)):
+		# 	ret = L
+		else:
+			ret = L
+			# raise ValueError("Unexpected type for mydeepcopy function")
 	
+		return ret
+
 	def check_setted_parameters(variables):
 		"""
 		Function that will check the variables of the Template and will raise errors that will crash the OT run
@@ -317,7 +329,7 @@ def run(protocol: protocol_api.ProtocolContext):
 		wells_final_plate = len(list(labware_context.get_labware_definition(variables.name_final_plate)["wells"]))
 		labware_final = setting_number_plates(math.ceil(wells_we_need/wells_final_plate), variables.name_final_plate)
 		
-		list_labware_final = copy.deepcopy(labware_final)
+		list_labware_final = mydeepcopy(labware_final)
 			
 		# Set the reactive falcons
 		# For that we need to know the maximum volume of the tubes and how many tubes of the reactives we need in total
@@ -637,7 +649,8 @@ def run(protocol: protocol_api.ProtocolContext):
 		if variables.volume_transfer_water > 0:
 			current_step = "Transfering water to final wells"
 			
-			wells_distribute_water = copy.deepcopy(wells_dispense)
+			wells_distribute_water = mydeepcopy(wells_dispense)
+			
 			pipette_use = give_me_optimal_pipette_to_use(variables.volume_transfer_water, variables.right_pipette, variables.left_pipette)
 			check_tip_and_pick(pipette_use, variables)
 			
