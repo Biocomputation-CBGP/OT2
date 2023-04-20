@@ -30,11 +30,17 @@ def run(protocol: protocol_api.ProtocolContext):
 	labware_context = opentrons.protocol_api.labware
 
 	## We are going to create a logger to control errors that can occure in the script that are not taked in account and some of ours that will quit the program
+# 	logging.basicConfig(format="""-------------------------------------------------------------------------------
+# --> SUM ERROR:
+# %(message)s
+# -------------------------------------------------------------------------------
+# --> INFO ERROR:""", level=logging.ERROR)
+
 	logging.basicConfig(format="""-------------------------------------------------------------------------------
 --> SUM ERROR:
-%(message)s
--------------------------------------------------------------------------------
---> INFO ERROR:""", level=logging.ERROR)
+ %(message)s
+-------------------------------------------------------------------------------""", level=logging.ERROR)
+
 	logger = logging.getLogger()
 
 # Classes definitions
@@ -198,10 +204,8 @@ def run(protocol: protocol_api.ProtocolContext):
 		# Control of typos in the initial tip both of right pipette and left pipette, i.e., check if that tip exist
 		try:
 			if variables.starting_tip_right_pip not in labware_context.get_labware_definition(define_tiprack(variables.name_right_pipette))["groups"][0]["wells"]:
-				print(variables.starting_tip_right_pip)
 				errors.append("Starting tip of right pipette is not valid, check for typos")
 			if variables.starting_tip_left_pip not in labware_context.get_labware_definition(define_tiprack(variables.name_left_pipette))["groups"][0]["wells"]:
-				print(variables.starting_tip_left_pip)
 				errors.append("Starting tip of left pipette is not valid, check for typos")
 		except:
 			errors.append("At least one of the pipettes is not established, check for typos in the name")
@@ -567,7 +571,7 @@ def run(protocol: protocol_api.ProtocolContext):
 		current_step = "Reading csv and transforming them to parameters/variables"
 		# Setting variables and calculating others
 		variables_csv = pd.read_csv("/data/user_storage/Variables-AntibioticPlatesCreation-OT.csv", index_col = 0)
-		#variables_csv = pd.read_csv("Variables-AntibioticPlatesCreation-OT.csv", index_col = 0)
+		# variables_csv = pd.read_csv("Variables-AntibioticPlatesCreation-OT.csv", index_col = 0)
 		# We are going to convert these parameters into arguments of the class variables and we are going to process some of them so they can be usable (they are going to be dictionaries in their majority)
 		variables = setted_parameters(variables_csv)
 		# We are going to check that the number of plate sources is according to antibiotics per plate
@@ -684,6 +688,6 @@ def run(protocol: protocol_api.ProtocolContext):
 		
 	except Exception as e:
 		print("-------------------------------------------------------------------------------")
-		print("--> ERROR STEP:\n" + current_step)
-		logger.critical(e, exc_info = True)
-		print("-------------------------------------------------------------------------------")
+		print("--> ERROR STEP:\n " + current_step)
+		logger.error(e, exc_info = False)
+		#print("-------------------------------------------------------------------------------")
