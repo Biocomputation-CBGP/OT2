@@ -74,8 +74,8 @@ def run(protocol: protocol_api.ProtocolContext):
 			self.volume_transfer_water = float(variables_csv._get_value("Vol Transfer Water (uL)", "Value"))
 			self.file_transform = "/data/user_storage/"+variables_csv._get_value("Antibiotic Transposition Genome File Name", "Value") + ".csv" # In this file the selection values are higher than the grow_OD
 			self.file_integration = "/data/user_storage/"+variables_csv._get_value("Antibiotic Ampiciline Plasmid File Name", "Value") + ".csv" # In this file the selection values are lower than the grow_OD
-			#self.file_transform = variables_csv._get_value("Antibiotic Transposition Genome File Name", "Value") + ".csv" # In this file the selection values are higher than the grow_OD
-			#self.file_integration = variables_csv._get_value("Antibiotic Ampiciline Plasmid File Name", "Value") + ".csv" # In this file the selection values are lower than the grow_OD
+			# self.file_transform = variables_csv._get_value("Antibiotic Transposition Genome File Name", "Value") + ".csv" # In this file the selection values are higher than the grow_OD
+			# self.file_integration = variables_csv._get_value("Antibiotic Ampiciline Plasmid File Name", "Value") + ".csv" # In this file the selection values are lower than the grow_OD
 			self.left_pipette_name = variables_csv._get_value("Name Pipette Left Mount", "Value")
 			self.right_pipette_name = variables_csv._get_value("Name Pipette Right Mount", "Value")
 			self.left_pipette = None
@@ -88,7 +88,7 @@ def run(protocol: protocol_api.ProtocolContext):
 			self.number_pcr_plates = int(variables_csv._get_value("Number of PCR Plates", "Value"))
 			self.name_rack_falcons = variables_csv._get_value("Name Rack Falcon 15mL", "Value")
 			self.final_map_name = "/data/user_storage/"+variables_csv._get_value("Final Map Name", "Value")+".csv"
-			#self.final_map_name = variables_csv._get_value("Final Map Name", "Value")
+			# self.final_map_name = variables_csv._get_value("Final Map Name", "Value")
 			self.reactives_info = {"glycerol":{"position_tubes":[],"reactions_per_tube":[],"destination_plates":[]},"water":{"position_tubes":[],"reactions_per_tube":[],"destination_plates":[]}}
 			if variables_csv._get_value("Replace Tiprack","Value").lower() == "true":
 				self.replace_tiprack = True
@@ -491,8 +491,8 @@ def run(protocol: protocol_api.ProtocolContext):
 #--------------------------------
 	try:
 		current_step = "Reading csv and transforming them to parameters/variables"
-		variables_csv = pd.read_csv("/data/user_storage/Variables-ColonieScreening-OT.csv", index_col = 0)
-		#variables_csv = pd.read_csv("Variables-ColonieScreening-OT-new.csv", index_col = 0)
+		variables_csv = pd.read_csv("/data/user_storage/Variables-ColonieScreening-OT-new.csv", index_col = 0)
+		# variables_csv = pd.read_csv("Variables-ColonieScreening-OT-new.csv", index_col = 0)
 		variables = setted_parameters(variables_csv)
 		
 		# Due to the fact that even in the parameters checking we use the labware definitions, we are going to check that they exist outside that function
