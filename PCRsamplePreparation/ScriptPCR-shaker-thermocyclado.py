@@ -1379,8 +1379,8 @@ def run(protocol: protocol_api.ProtocolContext):
         
         
         if variables.thermocycler:
-	    if variables.pause_tc:
-	    	protocol.pause("Protocol is pause so plate in thermocyler can be mix or user can put caps on it")
+            if variables.pause_tc:
+                protocol.pause("Protocol is pause so plate in thermocyler can be mix or user can put caps on it")
             variables.tc_module.close_lid()
             run_program_PCR(variables.tc_module, pd.read_csv(variables.thermocycler_profile_file), variables.final_open_lid, variables.final_block_temperature, variables.volume_reactives+variables.volume_colonie)
         
