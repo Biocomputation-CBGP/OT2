@@ -87,7 +87,7 @@ def run(protocol: protocol_api.ProtocolContext):
 			self.number_glycerol_plates = int(variables_csv._get_value("Number of Glycerol Plates", "Value"))
 			self.number_pcr_plates = int(variables_csv._get_value("Number of PCR Plates", "Value"))
 			self.name_rack_falcons = variables_csv._get_value("Name Rack Falcon 15mL", "Value")
-			self.final_map_name = "/data/user_storage/"+variables_csv._get_value("Final Map Name", "Value")+".csv"
+			self.final_map_name = "/data/user_storage/"+variables_csv._get_value("Final Map Name", "Value")
 			# self.final_map_name = variables_csv._get_value("Final Map Name", "Value")
 			self.reactives_info = {"glycerol":{"position_tubes":[],"reactions_per_tube":[],"destination_plates":[]},"water":{"position_tubes":[],"reactions_per_tube":[],"destination_plates":[]}}
 			if variables_csv._get_value("Replace Tiprack","Value").lower() == "true":
