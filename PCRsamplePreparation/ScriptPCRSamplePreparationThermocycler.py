@@ -1029,7 +1029,7 @@ def run(protocol: protocol_api.ProtocolContext):
     try:
         # Loading of the csv parameters and using the first column (the name of the variables) as index
         current_step = "Reading csv and transforming them to parameters/variables"
-        variables_df = pd.read_csv("/data/user_storage/Variables-PCRs-OT.csv", index_col = 0)
+        variables_df = pd.read_csv("/data/user_storage/Variables-PCRs-OT-Shaker.csv", index_col = 0)
         #variables_df = pd.read_csv("Variables-PCRs-OT-termocyclador.csv", index_col = 0)
 
         # We are going to convert these parameters into arguments of the class variables and we ar egoing to process some of them so they can be usable (they are going to be dictionaries)
